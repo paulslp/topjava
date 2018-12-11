@@ -59,7 +59,7 @@ public class UserMealsUtil {
                 userMealWithExceedList.add(new UserMealWithExceed(userMeal.getDateTime()
                         , userMeal.getDescription()
                         , userMeal.getCalories()
-                        , mealDaySum.get(userMeal.getDateTime().toLocalDate()) <= caloriesPerDay));
+                        , mealDaySum.get(userMeal.getDateTime().toLocalDate()) > caloriesPerDay));
             }
         }
         return userMealWithExceedList;
@@ -71,15 +71,14 @@ public class UserMealsUtil {
         Map<LocalDate, Integer> mealDaySum = mealList.stream()
                 .collect(Collectors.toMap(userMeal -> userMeal.getDateTime().toLocalDate()
                         , UserMeal::getCalories
-                        , (userMeal1, userMeal2) -> userMeal1 + userMeal2));
+                        , Integer::sum));
 
         return mealList.stream()
-                .filter(userMeal -> userMeal.getDateTime().toLocalTime().compareTo(startTime) > -1
-                        && userMeal.getDateTime().toLocalTime().compareTo(endTime) < 1)
+                .filter(userMeal -> TimeUtil.isBetween(userMeal.getDateTime().toLocalTime(), startTime, endTime))
                 .map(userMeal -> new UserMealWithExceed(userMeal.getDateTime()
                         , userMeal.getDescription()
                         , userMeal.getCalories()
-                        , mealDaySum.get(userMeal.getDateTime().toLocalDate()) <= caloriesPerDay))
+                        , mealDaySum.get(userMeal.getDateTime().toLocalDate()) > caloriesPerDay))
                 .collect(Collectors.toList());
 
 
