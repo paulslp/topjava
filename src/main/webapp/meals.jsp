@@ -1,0 +1,41 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<html>
+<head>
+    <title>Meals</title>
+</head>
+<body>
+<h3><a href="index.html">Home</a></h3>
+<h2>Meals</h2>
+
+<form method="get" action="meals" enctype="application/x-www-form-urlencoded">
+    <button type="submit" name="action" value="add">
+        Добавить
+    </button>
+</form>
+
+<table>
+    <tr>
+        <th>Дата/Время</th>
+        <th>Описание</th>
+        <th>Калории</th>
+    </tr>
+    <c:forEach var="mealWithExceeded" items="${requestScope.mealWithExceededList}">
+        <c:choose>
+            <c:when test="${mealWithExceeded.isExceed()}">
+                <tr bgcolor="#f08080">
+            </c:when>
+            <c:otherwise>
+                <tr bgcolor="#90ee90">
+            </c:otherwise>
+        </c:choose>
+        <td>${mealWithExceeded.getDateTime().toString().replace("T"," ")}</td>
+        <td>${mealWithExceeded.getDescription()}</td>
+        <td> ${mealWithExceeded.getCalories()}</td>
+        <td><a href="meals?mealId=${mealWithExceeded.getId()}&action=edit"><img src="img/pencil.png"></a></td>
+        <td><a href="meals?mealId=${mealWithExceeded.getId()}&action=delete"><img src="img/delete.png"></a></td>
+        </tr>
+    </c:forEach>
+</table>
+</body>
+</html>
