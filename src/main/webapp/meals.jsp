@@ -20,20 +20,14 @@
         <th>Описание</th>
         <th>Калории</th>
     </tr>
+
     <c:forEach var="mealWithExceeded" items="${requestScope.mealWithExceededList}">
-        <c:choose>
-            <c:when test="${mealWithExceeded.isExceed()}">
-                <tr bgcolor="#f08080">
-            </c:when>
-            <c:otherwise>
-                <tr bgcolor="#90ee90">
-            </c:otherwise>
-        </c:choose>
-        <td>${mealWithExceeded.getDateTime().toString().replace("T"," ")}</td>
-        <td>${mealWithExceeded.getDescription()}</td>
-        <td> ${mealWithExceeded.getCalories()}</td>
-        <td><a href="meals?mealId=${mealWithExceeded.getId()}&action=edit"><img src="img/pencil.png"></a></td>
-        <td><a href="meals?mealId=${mealWithExceeded.getId()}&action=delete"><img src="img/delete.png"></a></td>
+        <tr bgcolor=<c:out value="${mealWithExceeded.isExceed() ?'#f08080':'#90ee90'}"/>>
+            <td>${mealWithExceeded.getDateTime().toString().replace("T"," ")}</td>
+            <td>${mealWithExceeded.getDescription()}</td>
+            <td> ${mealWithExceeded.getCalories()}</td>
+            <td><a href="meals?mealId=${mealWithExceeded.getId()}&action=edit"><img src="img/pencil.png"></a></td>
+            <td><a href="meals?mealId=${mealWithExceeded.getId()}&action=delete"><img src="img/delete.png"></a></td>
         </tr>
     </c:forEach>
 </table>

@@ -3,28 +3,26 @@ package ru.javawebinar.topjava.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.UUID;
 
 public class Meal {
+
+
     private final LocalDateTime dateTime;
 
     private final String description;
 
     private final int calories;
 
-    private final String id;
+    private int id;
 
     public Meal(LocalDateTime dateTime, String description, int calories) {
         this.dateTime = dateTime;
         this.description = description;
         this.calories = calories;
-        this.id = UUID.randomUUID().toString();
     }
 
-    public Meal(String id,LocalDateTime dateTime, String description, int calories) {
-        this.dateTime = dateTime;
-        this.description = description;
-        this.calories = calories;
+    public Meal(int id, LocalDateTime dateTime, String description, int calories) {
+        this(dateTime, description, calories);
         this.id = id;
     }
 
@@ -48,7 +46,8 @@ public class Meal {
         return dateTime.toLocalTime();
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
+
 }

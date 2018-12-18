@@ -8,77 +8,61 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import org.slf4j.Logger;
 import ru.javawebinar.topjava.dao.ConcurrentMealDAO;
+import ru.javawebinar.topjava.dao.MealDao;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.MealWithExceed;
 import ru.javawebinar.topjava.util.MealsUtil;
 import ru.javawebinar.topjava.util.TestData;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
 public class MealServlet extends HttpServlet {
 
-    private static final Logger log = getLogger(MealServlet.class);
-
+    private final MealDao DAO = new ConcurrentMealDAO(new AtomicInteger(1));
 
     @Override
     public void init() throws ServletException {
         super.init();
-        TestData.fillData();
+        List<Meal> mealList = TestData.fillData();
+        mealList.forEach(DAO::add);
     }
 
-
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        ConcurrentMealDAO dao = new ConcurrentMealDAO();
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
-        String mealId = request.getParameter("mealId");
         String action = request.getParameter("action");
-
-        Meal meal = new Meal(mealId, LocalDateTime.parse(request.getParameter("dateTime")), request.getParameter("description"), Integer.parseInt(request.getParameter("calories")));
-
         if (action.equals("add")) {
-            dao.add(meal);
+            Meal meal = new Meal(LocalDateTime.parse(request.getParameter("dateTime")), request.getParameter("description"), Integer.parseInt(request.getParameter("calories")));
+            DAO.add(meal);
         } else {
-            dao.update(meal);
+            int mealId = Integer.valueOf(request.getParameter("mealId"));
+            Meal meal = new Meal(mealId, LocalDateTime.parse(request.getParameter("dateTime")), request.getParameter("description"), Integer.parseInt(request.getParameter("calories")));
+            DAO.update(meal);
         }
         response.sendRedirect("meals");
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-        ConcurrentMealDAO dao = new ConcurrentMealDAO();
-
         String action = request.getParameter("action");
         if (action == null) {
-
-            List<Meal> mealList = dao.getAllSorted();
-            List<MealWithExceed> mealWithExceededList = MealsUtil.getFilteredWithExceededWithoutTimeFilter(mealList, 2000);
+            List<Meal> mealList = DAO.getAll();
+            List<MealWithExceed> mealWithExceededList = MealsUtil.getFilteredWithExceeded(mealList, LocalTime.MIN, LocalTime.MAX, 2000);
             request.setAttribute("mealWithExceededList", mealWithExceededList);
             request.getRequestDispatcher("/meals.jsp").forward(request, response);
             return;
         }
-
-        String mealId = request.getParameter("mealId");
-
         switch (action) {
             case "delete":
-//2018-12-17 16:37
-                dao.delete(mealId);
+                DAO.delete(Integer.valueOf(request.getParameter("mealId")));
                 response.sendRedirect("meals");
                 return;
             case "add":
             case "edit":
-
-
-                Meal meal = (action.equals("edit")) ? dao.getById(mealId) : new Meal(UUID.randomUUID().toString(),LocalDateTime.of(LocalDate.now(), LocalTime.MIN), "", 0);
-                request.setAttribute("meal", meal);
+                Meal mealForSend = (action.equals("edit")) ? DAO.read(Integer.valueOf(request.getParameter("mealId"))) : new Meal(LocalDateTime.of(LocalDate.now(), LocalTime.MIN), "", 0);
+                request.setAttribute("meal", mealForSend);
                 request.setAttribute("action", action);
                 request.getRequestDispatcher("/meal.jsp").forward(request, response);
                 break;

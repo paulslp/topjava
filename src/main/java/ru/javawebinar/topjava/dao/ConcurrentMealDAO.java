@@ -6,39 +6,45 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class ConcurrentMealDAO extends MealDao {
 
-    private static ConcurrentMap<String, Meal> concurrentMealMap = new ConcurrentHashMap<>();
+public class ConcurrentMealDAO implements MealDao {
 
+    public ConcurrentMealDAO(AtomicInteger id) {
+        super();
+        this.id = id;
+    }
+
+    private ConcurrentMap<Integer, Meal> concurrentMealMap = new ConcurrentHashMap<>();
+
+    private AtomicInteger id;
 
     @Override
-    public Meal getById(String mealId) {
+    public Meal read(int mealId) {
         return concurrentMealMap.get(mealId);
     }
 
     @Override
-    public void insert(Meal meal) {
-        concurrentMealMap.put(meal.getId(), meal);
+    public void add(Meal meal) {
+        int mealId = id.incrementAndGet();
+        concurrentMealMap.putIfAbsent(mealId, new Meal(mealId, meal.getDateTime(), meal.getDescription(), meal.getCalories()));
     }
 
     @Override
-    protected void doDelete(String mealId) {
+    public void delete(int mealId) {
         concurrentMealMap.remove(mealId);
     }
 
     @Override
-    protected void doUpdate(Meal meal) {
-        concurrentMealMap.put(meal.getId(), meal);
+    public void update(Meal meal) {
+        concurrentMealMap.replace(meal.getId(), meal);
     }
 
     @Override
-    protected List<Meal> doCopyAll() {
+    public List<Meal> getAll() {
         return new ArrayList<>(concurrentMealMap.values());
     }
 
-    @Override
-    public Boolean isExists(String mealId) {
-        return concurrentMealMap.containsKey(mealId);
-    }
+
 }
