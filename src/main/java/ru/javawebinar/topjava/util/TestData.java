@@ -10,7 +10,7 @@ import java.util.List;
 
 public class TestData {
 
-    public static List<Meal> fillData() {
+    public static List<Meal> createMealList() {
         return Arrays.asList(
                 new Meal(LocalDateTime.of(2015, Month.MAY, 31, 10, 0), "Завтрак", 500),
                 new Meal(LocalDateTime.of(2015, Month.MAY, 31, 13, 0), "Обед", 1000),

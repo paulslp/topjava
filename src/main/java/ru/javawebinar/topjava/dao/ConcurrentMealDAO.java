@@ -11,9 +11,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ConcurrentMealDAO implements MealDao {
 
-    public ConcurrentMealDAO(AtomicInteger id) {
+    public ConcurrentMealDAO() {
         super();
-        this.id = id;
+        this.id = new AtomicInteger(1);
     }
 
     private ConcurrentMap<Integer, Meal> concurrentMealMap = new ConcurrentHashMap<>();
@@ -26,9 +26,11 @@ public class ConcurrentMealDAO implements MealDao {
     }
 
     @Override
-    public void add(Meal meal) {
+    public Meal add(Meal meal) {
         int mealId = id.incrementAndGet();
-        concurrentMealMap.putIfAbsent(mealId, new Meal(mealId, meal.getDateTime(), meal.getDescription(), meal.getCalories()));
+        Meal mealWithId = new Meal(mealId, meal.getDateTime(), meal.getDescription(), meal.getCalories());
+        concurrentMealMap.putIfAbsent(mealId, mealWithId);
+        return mealWithId;
     }
 
     @Override
@@ -43,7 +45,9 @@ public class ConcurrentMealDAO implements MealDao {
 
     @Override
     public List<Meal> getAll() {
-        return new ArrayList<>(concurrentMealMap.values());
+        List<Meal> mealList = new ArrayList<>(concurrentMealMap.values());
+        mealList.sort((o1, o2) -> o2.getDateTime().compareTo(o1.getDateTime()));
+        return mealList;
     }
 
 

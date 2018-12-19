@@ -20,12 +20,12 @@ import ru.javawebinar.topjava.util.TestData;
 
 public class MealServlet extends HttpServlet {
 
-    private final MealDao DAO = new ConcurrentMealDAO(new AtomicInteger(1));
+    private final MealDao DAO = new ConcurrentMealDAO();
 
     @Override
     public void init() throws ServletException {
         super.init();
-        List<Meal> mealList = TestData.fillData();
+        List<Meal> mealList = TestData.createMealList();
         mealList.forEach(DAO::add);
     }
 
