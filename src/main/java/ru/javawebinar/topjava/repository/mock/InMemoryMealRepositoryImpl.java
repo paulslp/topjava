@@ -21,7 +21,7 @@ import static ru.javawebinar.topjava.web.SecurityUtil.authUserId;
 
 @Repository
 public class InMemoryMealRepositoryImpl implements MealRepository {
-    protected final Logger log = LoggerFactory.getLogger(getClass());
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private Map<Integer, Meal> repository = new ConcurrentHashMap<>();
     private AtomicInteger counter = new AtomicInteger(0);
 
@@ -35,12 +35,12 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
         if (meal.isNew()) {
             meal.setId(counter.incrementAndGet());
             repository.put(meal.getId(), meal);
-            log.info("saveCreate{} "+meal.toString());
+            log.info("saveCreate{} " + meal.toString());
             return meal;
         }
         if (get(meal.getId(), authUserId) != null) {
             repository.put(meal.getId(), meal);
-            log.info("saveUpdate{} "+meal.toString());
+            log.info("saveUpdate{} " + meal.toString());
             return meal;
         }
         return null;
@@ -62,7 +62,7 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
     public Meal get(int id, int authUserId) {
         Meal meal = repository.get(id);
         if ((meal == null) || (meal.getUserId() == authUserId)) {
-            log.info("get{} "+String.valueOf(meal));
+            log.info("get{} " + String.valueOf(meal));
             return meal;
         } else {
             log.info("get{} null");
@@ -78,9 +78,6 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
                         (DateTimeUtil.isBetween(meal.getTime(), startTime, endTime)) &&
                         (meal.getUserId() == authUserId())))
                 .collect(Collectors.toList());
-        if (mealList == null) {
-            return new ArrayList<>();
-        }
         mealList.sort(((o1, o2) -> o2.getDateTime().compareTo(o1.getDateTime())));
 
         log.debug("getAllWithFilter{} ");
@@ -91,11 +88,7 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
 
     @Override
     public List<Meal> getAll() {
-        List<Meal> mealList = repository.values().stream()
-                .collect(Collectors.toList());
-        if (mealList == null) {
-            return new ArrayList<>();
-        }
+        List<Meal> mealList = new ArrayList<>(repository.values());
         mealList.sort(((o1, o2) -> o2.getDateTime().compareTo(o1.getDateTime())));
 
         log.info("getAll{} ");
