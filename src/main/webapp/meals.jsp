@@ -17,9 +17,39 @@
     </style>
 </head>
 <body>
+
 <section>
     <h3><a href="index.jsp">Home</a></h3>
     <h2>Meals</h2>
+
+    <form method="post" action="meals">
+        <table>
+            <tr>
+                <td>От даты</td>
+                <td>До даты</td>
+                <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                <td>От времени</td>
+                <td>До времени</td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><input type="date" name="dateStart" value="${dStart}"></td>
+                <td><input type="date" name="dateEnd" value="${dEnd}"></td>
+                <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                <td><input type="time" name="timeStart" value="${tStart}"></td>
+                <td><input type="time" name="timeEnd" value="${tEnd}"></td>
+                <td>
+                    <button type="submit" formmethod="get" name="filter" value="on">Отфильтровать</button>
+                </td>
+                <td>
+                    <button type="submit" formmethod="get" name="filter" value="off">Сбросить фильтр</button>
+                </td>
+
+            </tr>
+        </table>
+    </form>
+
     <a href="meals?action=create">Add Meal</a>
     <hr/>
     <table border="1" cellpadding="8" cellspacing="0">
@@ -36,9 +66,6 @@
             <jsp:useBean id="meal" scope="page" type="ru.javawebinar.topjava.to.MealWithExceed"/>
             <tr class="${meal.exceed ? 'exceeded' : 'normal'}">
                 <td>
-                        <%--${meal.dateTime.toLocalDate()} ${meal.dateTime.toLocalTime()}--%>
-                        <%--<%=TimeUtil.toString(meal.getDateTime())%>--%>
-                        <%--${fn:replace(meal.dateTime, 'T', ' ')}--%>
                         ${fn:formatDateTime(meal.dateTime)}
                 </td>
                 <td>${meal.description}</td>

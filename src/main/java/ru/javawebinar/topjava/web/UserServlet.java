@@ -14,8 +14,9 @@ public class UserServlet extends HttpServlet {
     private static final Logger log = getLogger(UserServlet.class);
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-            SecurityUtil.setAuthUserId(Integer.parseInt(request.getParameter("authUserId")));
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        log.debug("forward to meals");
+        SecurityUtil.setAuthUserId(Integer.parseInt(request.getParameter("authUserId")));
         response.sendRedirect("meals");
     }
 

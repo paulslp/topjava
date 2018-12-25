@@ -10,7 +10,6 @@ import ru.javawebinar.topjava.util.MealsUtil;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -77,8 +76,8 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
                 .filter(meal -> ((DateTimeUtil.isBetween(meal.getDate(), startDate, endDate)) &&
                         (DateTimeUtil.isBetween(meal.getTime(), startTime, endTime)) &&
                         (meal.getUserId() == authUserId())))
+                .sorted(((o1, o2) -> o2.getDateTime().compareTo(o1.getDateTime())))
                 .collect(Collectors.toList());
-        mealList.sort(((o1, o2) -> o2.getDateTime().compareTo(o1.getDateTime())));
 
         log.debug("getAllWithFilter{} ");
         mealList.forEach(meal -> log.info(meal.toString()));
@@ -88,8 +87,9 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
 
     @Override
     public List<Meal> getAll() {
-        List<Meal> mealList = new ArrayList<>(repository.values());
-        mealList.sort(((o1, o2) -> o2.getDateTime().compareTo(o1.getDateTime())));
+        List<Meal> mealList = repository.values().stream()
+                .sorted((o1, o2) -> o2.getDateTime().compareTo(o1.getDateTime()))
+                .collect(Collectors.toList());
 
         log.info("getAll{} ");
         mealList.forEach(meal -> log.info(meal.toString()));

@@ -5,9 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.repository.MealRepository;
-import ru.javawebinar.topjava.repository.mock.InMemoryMealRepositoryImpl;
-import ru.javawebinar.topjava.util.MealsUtil;
 import ru.javawebinar.topjava.web.meal.MealRestController;
 
 import javax.servlet.ServletConfig;
@@ -16,7 +13,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
@@ -25,7 +24,6 @@ import static ru.javawebinar.topjava.web.SecurityUtil.authUserId;
 public class MealServlet extends HttpServlet {
     private static final Logger log = LoggerFactory.getLogger(MealServlet.class);
 
-    //private MealRepository repository;
 
     private MealRestController mealRestController;
 
@@ -45,7 +43,7 @@ public class MealServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
         String id = request.getParameter("id");
 
@@ -53,7 +51,6 @@ public class MealServlet extends HttpServlet {
                 LocalDateTime.parse(request.getParameter("dateTime")),
                 request.getParameter("description"),
                 Integer.parseInt(request.getParameter("calories")));
-
 
         if (meal.isNew()) {
             log.info("Create {}", meal);
@@ -88,8 +85,24 @@ public class MealServlet extends HttpServlet {
             case "all":
             default:
                 log.info("getAll");
-                request.setAttribute("meals",
-                        mealRestController.getAllOurMeal());
+                if ((request.getParameter("filter") == null) || (request.getParameter("filter").equals("off"))) {
+                    request.setAttribute("dStart", null);
+                    request.setAttribute("dEnd", null);
+                    request.setAttribute("tStart", null);
+                    request.setAttribute("tEnd", null);
+                    request.setAttribute("meals", mealRestController.getAllOurMeal());
+                } else {
+                    request.setAttribute("dStart", request.getParameter("dateStart"));
+                    request.setAttribute("dEnd", request.getParameter("dateEnd"));
+                    request.setAttribute("tStart", request.getParameter("timeStart"));
+                    request.setAttribute("tEnd", request.getParameter("timeEnd"));
+                    request.setAttribute("meals", mealRestController.getAllWithFilter(
+                            request.getParameter("dateStart").equals("") ? LocalDate.MIN : LocalDate.parse(request.getParameter("dateStart")),
+                            request.getParameter("dateEnd").equals("") ? LocalDate.MAX : LocalDate.parse(request.getParameter("dateEnd")),
+                            request.getParameter("timeStart").equals("") ? LocalTime.MIN : LocalTime.parse(request.getParameter("timeStart")),
+                            request.getParameter("timeEnd").equals("") ? LocalTime.MAX : LocalTime.parse(request.getParameter("timeEnd"))
+                    ));
+                }
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
                 break;
         }
