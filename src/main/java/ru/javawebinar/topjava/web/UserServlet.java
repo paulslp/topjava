@@ -22,14 +22,14 @@ public class UserServlet extends HttpServlet {
     private static final Logger log = getLogger(UserServlet.class);
 
 
-    private AdminRestController adminRestController;
+    private ProfileRestController profileRestController;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
 
         try (ConfigurableApplicationContext appCtx = new ClassPathXmlApplicationContext("spring/spring-app.xml")) {
-            adminRestController = appCtx.getBean(AdminRestController.class);
+            profileRestController = appCtx.getBean(ProfileRestController.class);
         }
 
     }
@@ -54,8 +54,7 @@ public class UserServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         log.debug("forward to users");
 
-        List<User> userList = adminRestController.getAll();
-        request.setAttribute("users",userList);
+        request.setAttribute("users", profileRestController.getAll());
 
         request.getRequestDispatcher("/users.jsp").forward(request, response);
     }

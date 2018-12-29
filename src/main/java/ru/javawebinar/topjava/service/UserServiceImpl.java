@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User create(User user) {
-        return checkNotFound(repository.save(user),"Username already exists");
+        return checkNotFound(repository.save(user), "Username already exists");
     }
 
     @Override
