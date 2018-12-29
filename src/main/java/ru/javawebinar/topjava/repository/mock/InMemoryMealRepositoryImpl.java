@@ -5,18 +5,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
-import ru.javawebinar.topjava.util.DateTimeUtil;
 import ru.javawebinar.topjava.util.MealsUtil;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static ru.javawebinar.topjava.web.SecurityUtil.authUserId;
 
 @Repository
 public class InMemoryMealRepositoryImpl implements MealRepository {
@@ -25,35 +21,32 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
     private AtomicInteger counter = new AtomicInteger(0);
 
     {
-        MealsUtil.MEALS.forEach(meal -> save(meal, meal.getUserId()));
+        MealsUtil.MEALS.forEach(meal -> save(meal));
     }
 
 
     @Override
-    public Meal save(Meal meal, int authUserId) {
+    public Meal save(Meal meal) {
         if (meal.isNew()) {
             meal.setId(counter.incrementAndGet());
             repository.put(meal.getId(), meal);
             log.info("saveCreate{} " + meal.toString());
             return meal;
         }
-        if (get(meal.getId(), authUserId) != null) {
-            repository.put(meal.getId(), meal);
-            log.info("saveUpdate{} " + meal.toString());
-            return meal;
-        }
-        return null;
+        Meal value = repository.merge(meal.getId(), meal, (oldValue, newValue) -> (oldValue.getUserId() == newValue.getUserId() ? newValue : oldValue));
+        return value;
     }
 
+
     @Override
-    public Boolean delete(int id, int authUserId) {
-        if (get(id, authUserId) == null) {
-            log.info("delete{} false");
-            return false;
-        } else {
-            repository.remove(id);
+    public boolean delete(int id, int authUserId) {
+        Meal result = repository.computeIfPresent(id, (key, value) -> (value.getUserId() == authUserId ? null : value));
+        if (result == null) {
             log.info("delete{} true");
             return true;
+        } else {
+            log.info("delete{} false");
+            return false;
         }
     }
 
@@ -71,11 +64,9 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
 
 
     @Override
-    public List<Meal> getAllWithFilter(int userId, LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
+    public List<Meal> getAll(Predicate<Meal> filter) {
         List<Meal> mealList = repository.values().stream()
-                .filter(meal -> ((DateTimeUtil.isBetween(meal.getDate(), startDate, endDate)) &&
-                        (DateTimeUtil.isBetween(meal.getTime(), startTime, endTime)) &&
-                        (meal.getUserId() == authUserId())))
+                .filter(filter)
                 .sorted(((o1, o2) -> o2.getDateTime().compareTo(o1.getDateTime())))
                 .collect(Collectors.toList());
 
@@ -85,16 +76,5 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
         return mealList;
     }
 
-    @Override
-    public List<Meal> getAll() {
-        List<Meal> mealList = repository.values().stream()
-                .sorted((o1, o2) -> o2.getDateTime().compareTo(o1.getDateTime()))
-                .collect(Collectors.toList());
-
-        log.info("getAll{} ");
-        mealList.forEach(meal -> log.info(meal.toString()));
-
-        return mealList;
-    }
 }
 

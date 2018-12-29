@@ -27,6 +27,7 @@ public class MealServlet extends HttpServlet {
 
     private MealRestController mealRestController;
 
+
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
@@ -39,7 +40,9 @@ public class MealServlet extends HttpServlet {
 
     @Override
     public void destroy() {
-        mealRestController = null;
+        try (ConfigurableApplicationContext appCtx = new ClassPathXmlApplicationContext("spring/spring-app.xml")) {
+
+        }
     }
 
     @Override
@@ -47,7 +50,7 @@ public class MealServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         String id = request.getParameter("id");
 
-        Meal meal = new Meal(authUserId(), id.isEmpty() ? null : Integer.valueOf(id),
+        Meal meal = new Meal(null, id.isEmpty() ? null : Integer.valueOf(id),
                 LocalDateTime.parse(request.getParameter("dateTime")),
                 request.getParameter("description"),
                 Integer.parseInt(request.getParameter("calories")));
@@ -77,7 +80,7 @@ public class MealServlet extends HttpServlet {
             case "create":
             case "update":
                 final Meal meal = "create".equals(action) ?
-                        new Meal(authUserId(), LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000) :
+                        new Meal(null, LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000) :
                         mealRestController.get(getId(request));
                 request.setAttribute("meal", meal);
                 request.getRequestDispatcher("/mealForm.jsp").forward(request, response);
@@ -90,13 +93,13 @@ public class MealServlet extends HttpServlet {
                     request.setAttribute("dEnd", null);
                     request.setAttribute("tStart", null);
                     request.setAttribute("tEnd", null);
-                    request.setAttribute("meals", mealRestController.getAllOurMeal());
+                    request.setAttribute("meals", mealRestController.getAll());
                 } else {
                     request.setAttribute("dStart", request.getParameter("dateStart"));
                     request.setAttribute("dEnd", request.getParameter("dateEnd"));
                     request.setAttribute("tStart", request.getParameter("timeStart"));
                     request.setAttribute("tEnd", request.getParameter("timeEnd"));
-                    request.setAttribute("meals", mealRestController.getAllWithFilter(
+                    request.setAttribute("meals", mealRestController.getAll(
                             request.getParameter("dateStart").equals("") ? LocalDate.MIN : LocalDate.parse(request.getParameter("dateStart")),
                             request.getParameter("dateEnd").equals("") ? LocalDate.MAX : LocalDate.parse(request.getParameter("dateEnd")),
                             request.getParameter("timeStart").equals("") ? LocalTime.MIN : LocalTime.parse(request.getParameter("timeStart")),

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.to.MealWithExceed;
+import ru.javawebinar.topjava.util.DateTimeUtil;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -30,19 +31,16 @@ public class MealRestController {
         this.service = service;
     }
 
-    public List<MealWithExceed> getAllWithFilter(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
-        log.info("getAllWithFilter");
-        return getWithExceeded(service.getAllWithFilter(authUserId(), startDate, endDate, startTime, endTime), authUserCaloriesPerDay());
-    }
-
-    public List<MealWithExceed> getAllOurMeal() {
-        log.info("getAllOurMeal");
-        return getWithExceeded(service.getAllWithFilter(authUserId(), LocalDate.MIN, LocalDate.MAX, LocalTime.MIN, LocalTime.MAX), authUserCaloriesPerDay());
-    }
-
-    public List<Meal> getAll() {
+    public List<MealWithExceed> getAll() {
         log.info("getAll");
-        return service.getAll();
+        return getAll(LocalDate.MIN, LocalDate.MAX, LocalTime.MIN, LocalTime.MAX);
+    }
+
+    public List<MealWithExceed> getAll(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
+        log.info("getAllWithFilter");
+        return getWithExceeded(service.getAll(meal -> ((DateTimeUtil.isBetween(meal.getDate(), startDate, endDate)) &&
+                (DateTimeUtil.isBetween(meal.getTime(), startTime, endTime)) &&
+                (meal.getUserId() == authUserId()))), authUserCaloriesPerDay());
     }
 
 
@@ -54,6 +52,7 @@ public class MealRestController {
     public Meal create(Meal meal) {
         log.info("create {}", meal);
         checkNew(meal);
+        meal.setUserId(authUserId());
         return service.create(meal);
     }
 
@@ -65,7 +64,8 @@ public class MealRestController {
     public void update(Meal meal, int id) {
         log.info("update {} with id={}", meal, id);
         assureIdConsistent(meal, id);
-        service.update(meal, authUserId());
+        meal.setUserId(authUserId());
+        service.update(meal);
     }
 
 
