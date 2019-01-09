@@ -13,13 +13,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
-import static ru.javawebinar.topjava.web.SecurityUtil.authUserId;
 
 public class MealServlet extends HttpServlet {
     private static final Logger log = LoggerFactory.getLogger(MealServlet.class);
@@ -27,22 +24,17 @@ public class MealServlet extends HttpServlet {
 
     private MealRestController mealRestController;
 
+    private ConfigurableApplicationContext appCtx = new ClassPathXmlApplicationContext("spring/spring-app.xml");
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-
-        try (ConfigurableApplicationContext appCtx = new ClassPathXmlApplicationContext("spring/spring-app.xml")) {
-            mealRestController = appCtx.getBean(MealRestController.class);
-        }
-
+        mealRestController = appCtx.getBean(MealRestController.class);
     }
 
     @Override
     public void destroy() {
-        try (ConfigurableApplicationContext appCtx = new ClassPathXmlApplicationContext("spring/spring-app.xml")) {
-
-        }
+        appCtx.close();
     }
 
     @Override
@@ -95,16 +87,12 @@ public class MealServlet extends HttpServlet {
                     request.setAttribute("tEnd", null);
                     request.setAttribute("meals", mealRestController.getAll());
                 } else {
-                    request.setAttribute("dStart", request.getParameter("dateStart"));
-                    request.setAttribute("dEnd", request.getParameter("dateEnd"));
-                    request.setAttribute("tStart", request.getParameter("timeStart"));
-                    request.setAttribute("tEnd", request.getParameter("timeEnd"));
                     request.setAttribute("meals", mealRestController.getAll(
-                            request.getParameter("dateStart").equals("") ? LocalDate.MIN : LocalDate.parse(request.getParameter("dateStart")),
-                            request.getParameter("dateEnd").equals("") ? LocalDate.MAX : LocalDate.parse(request.getParameter("dateEnd")),
-                            request.getParameter("timeStart").equals("") ? LocalTime.MIN : LocalTime.parse(request.getParameter("timeStart")),
-                            request.getParameter("timeEnd").equals("") ? LocalTime.MAX : LocalTime.parse(request.getParameter("timeEnd"))
-                    ));
+                            request.getParameter("dateStart"),
+                            request.getParameter("dateEnd"),
+                            request.getParameter("timeStart"),
+                            request.getParameter("timeEnd"))
+                    );
                 }
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
                 break;

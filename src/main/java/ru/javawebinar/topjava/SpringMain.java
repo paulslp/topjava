@@ -28,9 +28,9 @@ public class SpringMain {
 //            mealRestController.get(10);
 //            mealRestController.get(15);
             mealRestController.update(new Meal(SecurityUtil.authUserId(), LocalDateTime.now(), "", 2000), 3);
-            mealRestController.getAll(LocalDate.MIN,LocalDate.MAX, LocalTime.MIN,LocalTime.MAX);
+            mealRestController.getAll("", "", "", "");
             mealRestController.create(new Meal(SecurityUtil.authUserId(), LocalDateTime.now(), "", 2000));
-            mealRestController.getAll(LocalDate.MIN,LocalDate.MAX, LocalTime.MIN,LocalTime.MAX);
+            mealRestController.getAll("", "", "", "");
             mealRestController.update(new Meal(SecurityUtil.authUserId(), LocalDateTime.now(), "", 2000), 7);
 
 

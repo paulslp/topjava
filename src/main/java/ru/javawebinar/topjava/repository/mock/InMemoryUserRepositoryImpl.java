@@ -38,16 +38,17 @@ public class InMemoryUserRepositoryImpl implements UserRepository {
             int counter_local = counter.incrementAndGet();
             user.setId(counter_local);
 
-            return repository.computeIfAbsent(user.getId(), (value) -> (checkContainUserName(user.getName())) ? null : user);
+            return repository.putIfAbsent(user.getId(), generateUserWithUniqueUserName(user, counter_local));
         }
 
         return repository.computeIfPresent(user.getId(), (id, oldUser) -> user);
     }
 
-    private boolean checkContainUserName(String userName) {
-
-        return (repository.values().stream().filter(user -> user.getName().equals(userName)).collect(Collectors.toList()).size() > 0);
-
+    private User generateUserWithUniqueUserName(User user, int counter_local) {
+        if (repository.values().stream().filter(user1 -> user1.getName().equals(user.getName())).collect(Collectors.toList()).size() > 0) {
+            user.setName(user.getName() + counter_local);
+        }
+        return user;
     }
 
 
@@ -60,20 +61,25 @@ public class InMemoryUserRepositoryImpl implements UserRepository {
     @Override
     public List<User> getAll() {
         log.info("getAll");
-        // List<User> userList = UsersUtil.USERS;
-        List<User> userList = repository.values().stream().collect(Collectors.toList());
-        userList.sort(((user1, user2) -> (user1.getName().compareTo(user2.getName()) == 0 ? user1.getEmail().compareTo(user2.getEmail()) : user1.getName().compareTo(user2.getName()))));
+
+        List<User> userList = repository.values()
+                .stream()
+                .sorted(((user1, user2) -> (user1.getName().compareTo(user2.getName()) == 0 ? user1.getEmail().compareTo(user2.getEmail()) : user1.getName().compareTo(user2.getName()))))
+                .collect(Collectors.toList());
         return userList;
     }
 
     @Override
     public User getByEmail(String email) {
         log.info("getByEmail {}", email);
-        List<User> userList = new ArrayList<>(repository.values());
 
-        return userList.stream()
+        return (((repository.values()
+                .stream()
                 .filter(user -> user.getEmail().equals(email))
-                .collect(Collectors.toList())
-                .get(0);
+                .collect(Collectors.toList()).size()) > 0) ?
+                repository.values()
+                        .stream()
+                        .filter(user -> user.getEmail().equals(email))
+                        .collect(Collectors.toList()).get(0) : null);
     }
 }

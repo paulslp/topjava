@@ -21,24 +21,19 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class UserServlet extends HttpServlet {
     private static final Logger log = getLogger(UserServlet.class);
 
+    private ConfigurableApplicationContext appCtx = new ClassPathXmlApplicationContext("spring/spring-app.xml");
 
     private ProfileRestController profileRestController;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-
-        try (ConfigurableApplicationContext appCtx = new ClassPathXmlApplicationContext("spring/spring-app.xml")) {
-            profileRestController = appCtx.getBean(ProfileRestController.class);
-        }
-
+        profileRestController = appCtx.getBean(ProfileRestController.class);
     }
 
     @Override
     public void destroy() {
-        try (ConfigurableApplicationContext appCtx = new ClassPathXmlApplicationContext("spring/spring-app.xml")) {
-
-        }
+        appCtx.close();
     }
 
 

@@ -33,13 +33,20 @@ public class MealRestController {
 
     public List<MealWithExceed> getAll() {
         log.info("getAll");
-        return getAll(LocalDate.MIN, LocalDate.MAX, LocalTime.MIN, LocalTime.MAX);
+
+        return getWithExceeded(service.getAll(meal -> meal.getUserId() == authUserId()), authUserCaloriesPerDay());
     }
 
-    public List<MealWithExceed> getAll(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
+
+    public List<MealWithExceed> getAll(String startDate, String endDate, String startTime, String endTime) {
         log.info("getAllWithFilter");
-        return getWithExceeded(service.getAll(meal -> ((DateTimeUtil.isBetween(meal.getDate(), startDate, endDate)) &&
-                (DateTimeUtil.isBetween(meal.getTime(), startTime, endTime)) &&
+        LocalDate startD = startDate.equals("") ? LocalDate.MIN : LocalDate.parse(startDate);
+        LocalDate endD = endDate.equals("") ? LocalDate.MAX : LocalDate.parse(endDate);
+        LocalTime startT = startTime.equals("") ? LocalTime.MIN : LocalTime.parse(startTime);
+        LocalTime endT = endTime.equals("") ? LocalTime.MAX : LocalTime.parse(endTime);
+
+        return getWithExceeded(service.getAll(meal -> ((DateTimeUtil.isBetween(meal.getDate(), startD, endD)) &&
+                (DateTimeUtil.isBetween(meal.getTime(), startT, endT)) &&
                 (meal.getUserId() == authUserId()))), authUserCaloriesPerDay());
     }
 

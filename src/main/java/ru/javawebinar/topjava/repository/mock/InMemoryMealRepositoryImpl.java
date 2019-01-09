@@ -6,7 +6,10 @@ import org.springframework.stereotype.Repository;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
 import ru.javawebinar.topjava.util.MealsUtil;
+import ru.javawebinar.topjava.web.SecurityUtil;
 
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,7 +26,7 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
     private AtomicInteger counter = new AtomicInteger(0);
 
     {
-        MealsUtil.MEALS.forEach(meal -> save(meal));
+        MealsUtil.MEALS.forEach(this::save);
     }
 
 
@@ -35,21 +38,19 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
             log.info("saveCreate{} " + meal.toString());
             return meal;
         }
-        Meal value = repository.merge(meal.getId(), meal, (oldValue, newValue) -> (oldValue.getUserId() == newValue.getUserId() ? newValue : oldValue));
+
+        Meal value = repository.merge(meal.getId(), meal, (oldValue, newValue) -> (oldValue.getUserId() == newValue.getUserId() ? newValue : null));
         return value;
     }
 
 
     @Override
     public boolean delete(int id, int authUserId) {
-        Meal result = repository.computeIfPresent(id, (key, value) -> (value.getUserId() == authUserId ? null : value));
-        if (result == null) {
-            log.info("delete{} true");
-            return true;
-        } else {
-            log.info("delete{} false");
-            return false;
-        }
+
+        boolean result = repository.entrySet().removeIf(entry -> (entry.getKey() == id) && (entry.getValue().getUserId() == authUserId));
+        log.info("delete{} " + result);
+        return result;
+
     }
 
     @Override
