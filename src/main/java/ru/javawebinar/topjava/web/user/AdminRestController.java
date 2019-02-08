@@ -12,7 +12,7 @@ public class AdminRestController extends AbstractUserController {
 
     public AdminRestController(UserService userService) {
         super();
-        this.service=userService;
+        this.service = userService;
     }
 
     @Override

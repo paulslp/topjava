@@ -37,44 +37,43 @@ public class MealServiceTest {
 
     @Test
     public void get() {
-        Meal meal = service.get(MEAL_ID1,USER_ID);
+        Meal meal = service.get(MEAL_ID1, USER_ID);
         assertMatch(meal, MEAL1);
     }
 
     @Test(expected = NotFoundException.class)
     public void getNotFound() throws Exception {
-        service.get(MEAL_ID1,ADMIN_ID);
+        service.get(MEAL_ID1, ADMIN_ID);
     }
-
 
 
     @Test
     public void delete() {
-        service.delete(MEAL_ID1,USER_ID);
-        assertMatch(service.getAll(USER_ID), MEAL2,MEAL3,MEAL4);
+        service.delete(MEAL_ID1, USER_ID);
+        assertMatch(service.getAll(USER_ID), MEAL4, MEAL3, MEAL2);
     }
 
     @Test(expected = NotFoundException.class)
     public void deletedNotFound() throws Exception {
-        service.delete(MEAL_ID5,USER_ID);
+        service.delete(MEAL_ID5, USER_ID);
     }
 
     @Test
     public void getBetweenDates() {
-        List<Meal> allWithFilter = service.getBetweenDates(LocalDate.of(2019,1,5),LocalDate.now(),ADMIN_ID);
-        assertMatch(allWithFilter, MEAL7,MEAL8);
+        List<Meal> allWithFilter = service.getBetweenDates(LocalDate.of(2019, 1, 5), LocalDate.now(), ADMIN_ID);
+        assertMatch(allWithFilter, MEAL8, MEAL7);
     }
 
     @Test
     public void getBetweenDateTimes() {
-        List<Meal> allWithFilter = service.getBetweenDateTimes(LocalDateTime.of(2019,1,5,12,0),LocalDateTime.now(),ADMIN_ID);
+        List<Meal> allWithFilter = service.getBetweenDateTimes(LocalDateTime.of(2019, 1, 5, 12, 0), LocalDateTime.now(), ADMIN_ID);
         assertMatch(allWithFilter, MEAL8);
     }
 
     @Test
     public void getAll() {
         List<Meal> all = service.getAll(ADMIN_ID);
-        assertMatch(all, MEAL5, MEAL6,MEAL7,MEAL8);
+        assertMatch(all, MEAL8, MEAL7, MEAL6, MEAL5);
     }
 
     @Test
@@ -82,8 +81,8 @@ public class MealServiceTest {
         Meal updated = new Meal(MEAL1);
         updated.setDescription("UpdatedName");
         updated.setCalories(330);
-        service.update(updated,USER_ID);
-        assertMatch(service.get(MEAL_ID1,USER_ID), updated);
+        service.update(updated, USER_ID);
+        assertMatch(service.get(MEAL_ID1, USER_ID), updated);
 
     }
 
@@ -92,14 +91,14 @@ public class MealServiceTest {
         Meal updated = new Meal(MEAL1);
         updated.setDescription("UpdatedName");
         updated.setCalories(330);
-        service.update(updated,ADMIN_ID);
+        service.update(updated, ADMIN_ID);
     }
 
     @Test
     public void create() {
-        Meal newMeal = new Meal(null, LocalDateTime.of(2019,2,7,0,0), "new", 1500);
+        Meal newMeal = new Meal(null, LocalDateTime.of(2019, 2, 7, 0, 0), "new", 1500);
         Meal created = service.create(newMeal, 100000);
         newMeal.setId(created.getId());
-        assertMatch(service.getAll(100000), MEAL1, MEAL2, MEAL3,MEAL4,newMeal);
+        assertMatch(service.getAll(100000),newMeal, MEAL4, MEAL3, MEAL2, MEAL1);
     }
 }
