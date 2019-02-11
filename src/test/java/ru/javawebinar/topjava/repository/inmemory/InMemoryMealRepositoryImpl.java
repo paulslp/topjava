@@ -29,7 +29,6 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 public class InMemoryMealRepositoryImpl implements MealRepository {
     private static final Logger log = LoggerFactory.getLogger(InMemoryMealRepositoryImpl.class);
 
-    // Map  userId -> (mealId-> meal)
     private Map<Integer, Map<Integer, Meal>> repository = new ConcurrentHashMap<>();
     private AtomicInteger counter = new AtomicInteger(0);
 
@@ -40,13 +39,6 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
         save(new Meal(LocalDateTime.of(2015, Month.JUNE, 1, 21, 0), "Админ ужин", 1500), ADMIN_ID);
     }
 
-    /*        Map<Integer, Meal> meals = repository.computeIfAbsent(userId, ConcurrentHashMap::new);
-            if (meal.isNew()) {
-                meal.setId(counter.incrementAndGet());
-                meals.put(meal.getId(), meal);
-                return meal;
-            }
-            return meals.computeIfPresent(meal.getId(), (id, oldMeal) -> meal);*/
     @Override
     public Meal save(Meal meal, int userId) {
         Map<Integer, Meal> meals = repository.computeIfAbsent(userId, ConcurrentHashMap::new);

@@ -4,16 +4,11 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <import resource="classpath:spring/spring-db.xml" />
+    <import resource="classpath:spring/spring-db.xml"/>
+
+    <import resource="classpath:spring/spring-web-service.xml"/>
 
     <context:component-scan base-package="ru.javawebinar.**.repository.jdbc"/>
-
-    <context:component-scan base-package="ru.javawebinar.**.service"/>
-
-    <context:component-scan base-package="ru.javawebinar.**.web"/>
-
-
-
 
 
 </beans>
