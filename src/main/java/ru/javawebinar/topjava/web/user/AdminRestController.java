@@ -10,11 +10,6 @@ import java.util.List;
 @Controller
 public class AdminRestController extends AbstractUserController {
 
-    public AdminRestController(UserService userService) {
-        super();
-        this.service = userService;
-    }
-
     @Override
     public List<User> getAll() {
         return super.getAll();

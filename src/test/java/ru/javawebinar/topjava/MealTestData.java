@@ -42,7 +42,6 @@ public class MealTestData {
 
     public static void assertMatch(Iterable<Meal> actual, Iterable<Meal> expected) {
         assertThat(actual)
-                .usingComparatorForElementFieldsWithNames(Comparator.comparing(LocalDateTime::toString), "datetime")
                 .usingFieldByFieldElementComparator()
                 .isEqualTo(expected);
     }
