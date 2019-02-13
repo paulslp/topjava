@@ -6,13 +6,11 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
-import ru.javawebinar.topjava.util.MealsUtil;
 import ru.javawebinar.topjava.util.Util;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -21,9 +19,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
-import static ru.javawebinar.topjava.UserTestData.USER_ID;
 
 @Repository
 public class InMemoryMealRepositoryImpl implements MealRepository {
