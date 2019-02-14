@@ -82,7 +82,7 @@ public class MealServiceTest {
     public static void writeTestResults() {
         testsInfoMap.forEach((testMethodName, duration) -> System.out.println(generateTestInfoMessage(testMethodName, duration)));
 
-      //  testsInfoMap.forEach((testMethodName, duration) -> log.info(generateTestInfoMessage(testMethodName, duration)));
+        //  testsInfoMap.forEach((testMethodName, duration) -> log.info(generateTestInfoMessage(testMethodName, duration)));
     }
 
 
