@@ -1,7 +1,12 @@
 package ru.javawebinar.topjava.model;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import javax.persistence.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -28,14 +33,18 @@ public class Meal extends AbstractBaseEntity {
     private LocalDateTime dateTime;
 
 
+    @Size(min = 2, max = 120)
     @Column(name = "description")
+    @NotNull
     private String description;
 
+
+    @Max(5000)
+    @Min(2)
     @Column(name = "calories")
-    @NotNull
     private int calories;
 
-
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = User.class)
     @JoinColumn(name = "user_id")
     private User user;

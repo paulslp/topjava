@@ -1,9 +1,11 @@
 package ru.javawebinar.topjava.service;
 
 import org.junit.AfterClass;
+import org.junit.AssumptionViolatedException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.Stopwatch;
 import org.junit.rules.TestName;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
@@ -22,7 +24,9 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 import java.time.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
+import static org.slf4j.LoggerFactory.getLogger;
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
 import static ru.javawebinar.topjava.UserTestData.USER_ID;
@@ -39,11 +43,11 @@ public class MealServiceTest {
     @Autowired
     private MealService service;
 
-    private static LocalDateTime startTestDatetime = LocalDateTime.now();
-    private static LocalDateTime endTestDatetime = LocalDateTime.now();
+    private static long startTestDatetime = System.currentTimeMillis();
+    private static long endTestDatetime = System.currentTimeMillis();
     private static Map<String, Long> testsInfoMap = new LinkedHashMap<>();
 
-    private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
+    // private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
 
 
     static {
@@ -56,39 +60,73 @@ public class MealServiceTest {
     @Rule
     public final TestName testName = new TestName();
 
-    @Rule
-    public TestWatcher watcher = new TestWatcher() {
 
+    private static final Logger logger = getLogger(MealServiceTest.class);
+  //private static final   Logger logger = LoggerFactory.getLogger(MealServiceTest.class);
+
+    private static void logInfo(Description description, String status, long nanos) {
+        String testName = description.getMethodName();
+        logger.info(String.format("%-5s%-11s%-25s%-11s%n","Код","За единиц","Валюты","Рублей РФ"));
+        logger.info(String.format("Test %s %s, spent %d microseconds",testName, status, TimeUnit.NANOSECONDS.toMicros(nanos)));
+    }
+
+    @Rule
+    public Stopwatch stopwatch = new Stopwatch() {
         @Override
-        protected void starting(Description description) {
-            startTestDatetime = LocalDateTime.now();
+        protected void succeeded(long nanos, Description description) {
+            logInfo(description, "succeeded", nanos);
         }
 
         @Override
-        protected void finished(Description description) {
-            endTestDatetime = LocalDateTime.now();
-            String testMethodName = testName.getMethodName();
-            long durationTest = Duration.between(startTestDatetime, endTestDatetime).toMillis();
-            testsInfoMap.put(testMethodName, durationTest);
-            System.out.println(generateTestInfoMessage(testMethodName, durationTest));
+        protected void failed(long nanos, Throwable e, Description description) {
+            logInfo(description, "failed", nanos);
+        }
+
+        @Override
+        protected void skipped(long nanos, AssumptionViolatedException e, Description description) {
+            logInfo(description, "skipped", nanos);
+        }
+
+        @Override
+        protected void finished(long nanos, Description description) {
+            logInfo(description, "finished", nanos);
         }
     };
 
-    private static String generateTestInfoMessage(String testMethodName, long durationTest) {
-        return "test " + testMethodName + " run time: " + durationTest + " ms";
-    }
 
-    @AfterClass
-    public static void writeTestResults() {
-        testsInfoMap.forEach((testMethodName, duration) -> System.out.println(generateTestInfoMessage(testMethodName, duration)));
-
-        //  testsInfoMap.forEach((testMethodName, duration) -> log.info(generateTestInfoMessage(testMethodName, duration)));
-    }
+//    @Rule
+//    public TestWatcher watcher = new TestWatcher() {
+//
+//        @Override
+//        protected void starting(Description description) {
+//            startTestDatetime = System.currentTimeMillis();
+//        }
+//
+//        @Override
+//        protected void finished(Description description) {
+//            endTestDatetime = System.currentTimeMillis();
+//            String testMethodName = testName.getMethodName();
+//            long durationTest = endTestDatetime-startTestDatetime;
+//            testsInfoMap.put(testMethodName, durationTest);
+//            System.out.println(generateTestInfoMessage(testMethodName, durationTest));
+//        }
+//    };
+//
+//    private static String generateTestInfoMessage(String testMethodName, long durationTest) {
+//        return "test " + testMethodName + " run time: " + durationTest + " ms";
+//    }
+//
+//    @AfterClass
+//    public static void writeTestResults() {
+//        testsInfoMap.forEach((testMethodName, duration) -> System.out.println(generateTestInfoMessage(testMethodName, duration)));
+//
+//        //  testsInfoMap.forEach((testMethodName, duration) -> log.info(generateTestInfoMessage(testMethodName, duration)));
+//    }
 
 
     @Test
     public void delete() {
-        log.info("starting");
+        logger.info("starting");
         service.delete(MEAL1_ID, USER_ID);
         assertMatch(service.getAll(USER_ID), MEAL6, MEAL5, MEAL4, MEAL3, MEAL2);
     }

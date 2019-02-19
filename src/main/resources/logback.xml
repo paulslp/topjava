@@ -13,17 +13,35 @@
         </encoder>
     </appender>
 
-    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="color" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <charset>UTF-8</charset>
-            <pattern>%d{HH:mm:ss.SSS} %-5level %class{50}.%M:%L - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} %highlight(%-5level) %class{50}.%M:%L  - %highlight(%msg%n)</pattern>
         </encoder>
     </appender>
 
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <charset>UTF-8</charset>
+            <!--<Pattern>%d %highlight(%-5level) [%thread] %cyan(%logger{15}): %msg%n</Pattern>-->
+            <pattern>%d{HH:mm:ss.SSS} %-5level %class{50}.%M:%L  - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+
     <logger name="ru.javawebinar.topjava" level="debug"/>
+
+    <logger name="colorLogger" level="debug">
+        <appender-ref ref="color"/>
+    </logger>
+
+    <logger name="consoleLogger" level="debug">
+        <appender-ref ref="console"/>
+    </logger>
 
     <root level="info">
         <appender-ref ref="file"/>
-        <appender-ref ref="console"/>
+        <!--<appender-ref ref="color"/>-->
+        <!--<appender-ref ref="console"/>-->
     </root>
 </configuration>
