@@ -1,7 +1,5 @@
 package ru.javawebinar.topjava.model;
 
-import org.springframework.beans.factory.annotation.Value;
-
 import javax.persistence.*;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -12,9 +10,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @NamedQueries({
-        @NamedQuery(name = Meal.UPDATE, query = "UPDATE Meal m SET m.dateTime=:dateTime, m.calories=:calories,m.description=:description WHERE m.id=:id AND m.user.id=:userId"),
         @NamedQuery(name = Meal.DELETE, query = "DELETE FROM Meal m WHERE m.id=:id AND m.user.id=:userId"),
-        @NamedQuery(name = Meal.SELECT, query = "SELECT m FROM Meal m WHERE m.user.id=?1 AND m.id=?2"),
         @NamedQuery(name = Meal.ALL_SORTED, query = "SELECT m FROM Meal m WHERE m.user.id=?1 ORDER BY m.dateTime DESC"),
         @NamedQuery(name = Meal.ALL_SORTED_WITH_FILTER, query = "SELECT m FROM Meal m WHERE (m.user.id=?1) AND (m.dateTime BETWEEN ?2 AND ?3) ORDER BY m.dateTime DESC"),
 })

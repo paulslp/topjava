@@ -36,7 +36,7 @@ public class JpaMealRepositoryImpl implements MealRepository {
                 em.merge(meal);
             }
         }
-            return meal;
+        return meal;
     }
 
     private static final Logger logger = LoggerFactory.getLogger("JpaMealRepositoryImpl");
@@ -44,7 +44,7 @@ public class JpaMealRepositoryImpl implements MealRepository {
     @Override
     @Transactional
     public boolean delete(int id, int userId) {
-        logger.info("delete user id "+userId);
+        logger.info("delete user id " + userId);
         return em.createNamedQuery(Meal.DELETE)
                 .setParameter("id", id)
                 .setParameter("userId", userId)

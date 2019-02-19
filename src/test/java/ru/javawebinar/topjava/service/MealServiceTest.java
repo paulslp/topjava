@@ -7,11 +7,9 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.Stopwatch;
 import org.junit.rules.TestName;
-import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -47,8 +45,6 @@ public class MealServiceTest {
     private static long endTestDatetime = System.currentTimeMillis();
     private static Map<String, Long> testsInfoMap = new LinkedHashMap<>();
 
-    // private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
-
 
     static {
         SLF4JBridgeHandler.install();
@@ -62,12 +58,27 @@ public class MealServiceTest {
 
 
     private static final Logger logger = getLogger(MealServiceTest.class);
-  //private static final   Logger logger = LoggerFactory.getLogger(MealServiceTest.class);
+
+    private static class TestResult {
+        long duration;
+        String status;
+
+        public TestResult(long duration, String status) {
+            this.duration = duration;
+            this.status = status;
+        }
+    }
 
     private static void logInfo(Description description, String status, long nanos) {
         String testName = description.getMethodName();
-        logger.info(String.format("%-5s%-11s%-25s%-11s%n","Код","За единиц","Валюты","Рублей РФ"));
-        logger.info(String.format("Test %s %s, spent %d microseconds",testName, status, TimeUnit.NANOSECONDS.toMicros(nanos)));
+        logger.info("                                                            ");
+        logger.info(String.format("%-20s%-20s%-20s", "Test name", "Status", "Duration,ms"));
+        logger.info("------------------------------------------------------------");
+        logger.info(String.format("%-20s%-20s%-20d", testName, status, TimeUnit.NANOSECONDS.toMillis(nanos)));
+        logger.info("------------------------------------------------------------");
+        logger.info("                                                            ");
+
+        testsInfoMap.put(description.getMethodName(), TimeUnit.NANOSECONDS.toMillis(nanos));
     }
 
     @Rule
@@ -75,6 +86,7 @@ public class MealServiceTest {
         @Override
         protected void succeeded(long nanos, Description description) {
             logInfo(description, "succeeded", nanos);
+
         }
 
         @Override
@@ -93,35 +105,13 @@ public class MealServiceTest {
         }
     };
 
-
-//    @Rule
-//    public TestWatcher watcher = new TestWatcher() {
-//
-//        @Override
-//        protected void starting(Description description) {
-//            startTestDatetime = System.currentTimeMillis();
-//        }
-//
-//        @Override
-//        protected void finished(Description description) {
-//            endTestDatetime = System.currentTimeMillis();
-//            String testMethodName = testName.getMethodName();
-//            long durationTest = endTestDatetime-startTestDatetime;
-//            testsInfoMap.put(testMethodName, durationTest);
-//            System.out.println(generateTestInfoMessage(testMethodName, durationTest));
-//        }
-//    };
-//
-//    private static String generateTestInfoMessage(String testMethodName, long durationTest) {
-//        return "test " + testMethodName + " run time: " + durationTest + " ms";
-//    }
-//
-//    @AfterClass
-//    public static void writeTestResults() {
-//        testsInfoMap.forEach((testMethodName, duration) -> System.out.println(generateTestInfoMessage(testMethodName, duration)));
-//
-//        //  testsInfoMap.forEach((testMethodName, duration) -> log.info(generateTestInfoMessage(testMethodName, duration)));
-//    }
+    @AfterClass
+    public static void writeTestResults() {
+        logger.info(String.format("%-28s%s", "          Test name", "Duration,ms"));
+        logger.info("------------------------------------------------------------");
+        testsInfoMap.entrySet().stream().forEach(entry -> logger.info(String.format("%-20s%-20s", entry.getKey(), entry.getValue())));
+        logger.info("------------------------------------------------------------");
+    }
 
 
     @Test
