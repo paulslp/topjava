@@ -1,7 +1,6 @@
 package ru.javawebinar.topjava.service;
 
 import org.junit.AfterClass;
-import org.junit.AssumptionViolatedException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -41,8 +40,6 @@ public class MealServiceTest {
     @Autowired
     private MealService service;
 
-    private static long startTestDatetime = System.currentTimeMillis();
-    private static long endTestDatetime = System.currentTimeMillis();
     private static Map<String, Long> testsInfoMap = new LinkedHashMap<>();
 
 
@@ -59,15 +56,6 @@ public class MealServiceTest {
 
     private static final Logger logger = getLogger(MealServiceTest.class);
 
-    private static class TestResult {
-        long duration;
-        String status;
-
-        public TestResult(long duration, String status) {
-            this.duration = duration;
-            this.status = status;
-        }
-    }
 
     private static void logInfo(Description description, String status, long nanos) {
         String testName = description.getMethodName();
@@ -84,22 +72,6 @@ public class MealServiceTest {
     @Rule
     public Stopwatch stopwatch = new Stopwatch() {
         @Override
-        protected void succeeded(long nanos, Description description) {
-            logInfo(description, "succeeded", nanos);
-
-        }
-
-        @Override
-        protected void failed(long nanos, Throwable e, Description description) {
-            logInfo(description, "failed", nanos);
-        }
-
-        @Override
-        protected void skipped(long nanos, AssumptionViolatedException e, Description description) {
-            logInfo(description, "skipped", nanos);
-        }
-
-        @Override
         protected void finished(long nanos, Description description) {
             logInfo(description, "finished", nanos);
         }
@@ -107,9 +79,11 @@ public class MealServiceTest {
 
     @AfterClass
     public static void writeTestResults() {
-        logger.info(String.format("%-28s%s", "          Test name", "Duration,ms"));
+        logger.info(String.format("%-20s%s", "Test name", "Duration,ms"));
         logger.info("------------------------------------------------------------");
-        testsInfoMap.entrySet().stream().forEach(entry -> logger.info(String.format("%-20s%-20s", entry.getKey(), entry.getValue())));
+        for (Map.Entry<String, Long> entry : testsInfoMap.entrySet()) {
+            logger.info(String.format("%-20s%-20s", entry.getKey(), entry.getValue()));
+        }
         logger.info("------------------------------------------------------------");
     }
 

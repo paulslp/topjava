@@ -28,15 +28,11 @@ public class JpaMealRepositoryImpl implements MealRepository {
         meal.setUser(ref);
         if (meal.isNew()) {
             em.persist(meal);
+            return meal;
         } else {
             Meal mealCheck = get(meal.getId(), userId);
-            if (mealCheck == null) {
-                return null;
-            } else {
-                em.merge(meal);
-            }
+            return (mealCheck == null) ? null : em.merge(meal);
         }
-        return meal;
     }
 
     private static final Logger logger = LoggerFactory.getLogger("JpaMealRepositoryImpl");
@@ -54,11 +50,7 @@ public class JpaMealRepositoryImpl implements MealRepository {
     @Override
     public Meal get(int id, int userId) {
         Meal meal = em.find(Meal.class, id);
-        if (meal.getUser().getId() == userId) {
-            return meal;
-        } else {
-            return null;
-        }
+        return (meal == null) || (meal.getUser().getId() != userId) ? null : meal;
     }
 
     @Override
