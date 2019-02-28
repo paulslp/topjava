@@ -39,3 +39,4 @@ CREATE TABLE meals
 );
 CREATE UNIQUE INDEX meals_unique_user_datetime_idx
   ON meals (user_id, date_time)
+

@@ -53,15 +53,25 @@ public class User extends AbstractNamedEntity {
     @Range(min = 10, max = 10000)
     private int caloriesPerDay = DEFAULT_CALORIES_PER_DAY;
 
+    @OrderBy("date_time desc")
+    @OneToMany(mappedBy = "user",fetch = FetchType.EAGER)
+    private List<Meal> meals;
+
     public User() {
     }
 
     public User(User u) {
         this(u.getId(), u.getName(), u.getEmail(), u.getPassword(), u.getCaloriesPerDay(), u.isEnabled(), u.getRegistered(), u.getRoles());
+        this.meals = u.meals;
     }
 
     public User(Integer id, String name, String email, String password, Role role, Role... roles) {
         this(id, name, email, password, DEFAULT_CALORIES_PER_DAY, true, new Date(), EnumSet.of(role, roles));
+    }
+
+    public User(Integer id, String name, String email, String password, Role role,Meal... meals) {
+        this(id, name, email, password, DEFAULT_CALORIES_PER_DAY, true, new Date(), EnumSet.of(role));
+        this.meals = Arrays.asList(meals);
     }
 
     public User(Integer id, String name, String email, String password, int caloriesPerDay, boolean enabled, Date registered, Collection<Role> roles) {
@@ -120,6 +130,14 @@ public class User extends AbstractNamedEntity {
 
     public void setRoles(Collection<Role> roles) {
         this.roles = CollectionUtils.isEmpty(roles) ? Collections.emptySet() : EnumSet.copyOf(roles);
+    }
+
+    public List<Meal> getMeals() {
+        return meals;
+    }
+
+    public void setMeals(List<Meal> meals) {
+        this.meals = meals;
     }
 
     @Override

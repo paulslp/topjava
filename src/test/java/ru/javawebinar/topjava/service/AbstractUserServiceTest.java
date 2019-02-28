@@ -5,13 +5,12 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.dao.DataAccessException;
+import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static ru.javawebinar.topjava.UserTestData.*;
 
@@ -39,7 +38,7 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
 
     @Test(expected = DataAccessException.class)
     public void duplicateMailCreate() throws Exception {
-        service.create(new User(null, "Duplicate", "user@yandex.ru", "newPass", Role.ROLE_USER));
+        service.create(new User(null, "Duplicate", "user@yandex.ru", "newPass", Role.ROLE_USER,(Meal) null));
     }
 
     @Test
