@@ -87,4 +87,8 @@ public abstract class AbstractJdbcMealRepository implements MealRepository {
                 ROW_MAPPER, userId, getCheckedDateTime(startDate), getCheckedDateTime(endDate));
     }
 
+    @Override
+    public Meal getWithUser(int id, int userId) {
+        throw new UnsupportedOperationException();
+    }
 }

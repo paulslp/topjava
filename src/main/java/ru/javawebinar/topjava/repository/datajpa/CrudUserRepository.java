@@ -13,14 +13,17 @@ import java.util.Optional;
 
 @Transactional(readOnly = true)
 public interface CrudUserRepository extends JpaRepository<User, Integer> {
-    @Transactional
+
     @Modifying
-//    @Query(name = User.DELETE)
     @Query("DELETE FROM User u WHERE u.id=:id")
     int delete(@Param("id") int id);
 
+
+    @Query("select u from User u inner join fetch u.meals m where u.id = :id ORDER BY m.dateTime DESC ")
+    User getWithMeals(@Param("id") int id);
+
+
     @Override
-    @Transactional
     User save(User user);
 
     @Override

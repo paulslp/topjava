@@ -43,15 +43,14 @@ public class JpaUserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public User getWithMeals(int id) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     @Transactional
     public boolean delete(int id) {
 
-/*      User ref = em.getReference(User.class, id);
-        em.remove(ref);
-
-        Query query = em.createQuery("DELETE FROM User u WHERE u.id=:id");
-        return query.setParameter("id", id).executeUpdate() != 0;
-*/
         return em.createNamedQuery(User.DELETE)
                 .setParameter("id", id)
                 .executeUpdate() != 0;

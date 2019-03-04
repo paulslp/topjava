@@ -49,7 +49,14 @@ public class DataJpaMealRepositoryImpl implements MealRepository {
 
     @Override
     public Meal get(int id, int userId) {
-        return crudRepository.findByIdAndUserId(id, userId);
+        Meal meal = crudRepository.findByIdAndUserId(id, userId);
+        return meal;
+    }
+
+    @Transactional
+    @Override
+    public Meal getWithUser(int id, int userId) {
+        return crudRepository.getWithUser(id, userId);
     }
 
     @Override
