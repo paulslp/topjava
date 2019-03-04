@@ -1,5 +1,6 @@
 package ru.javawebinar.topjava;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import ru.javawebinar.topjava.model.Meal;
@@ -18,18 +19,25 @@ import java.util.List;
 public class SpringMain {
     public static void main(String[] args) {
         // java 7 Automatic resource management
-        ConfigurableApplicationContext springContextProfile = new ClassPathXmlApplicationContext();
-        springContextProfile.getEnvironment().setActiveProfiles(Profiles.DATAJPA, Profiles.POSTGRES_DB);
-        springContextProfile.refresh();
+//        ConfigurableApplicationContext springContextProfile = new ClassPathXmlApplicationContext();
+//        springContextProfile.getEnvironment().setActiveProfiles(Profiles.DATAJPA, Profiles.POSTGRES_DB);
+//        springContextProfile.refresh();
 
 
-        try (ConfigurableApplicationContext appCtx = new ClassPathXmlApplicationContext(new String[]{"spring/spring-app.xml", "spring/spring-db.xml"}, springContextProfile)) {
-            springContextProfile.close();
+        try (ConfigurableApplicationContext appCtx = new ClassPathXmlApplicationContext()) {
+            //  springContextProfile.close();
+
+           CustomInitializer customInitializer = new CustomInitializer();
+           customInitializer.initialize(appCtx);
+            appCtx.refresh();
+            ((ClassPathXmlApplicationContext) appCtx).setConfigLocation("spring/spring-app.xml");
+            // appCtx.getEnvironment().setActiveProfiles(new String[]{Profiles.getActiveDbProfile(), Profiles.REPOSITORY_IMPLEMENTATION});
+
+            appCtx.refresh();
+
             System.out.println("Bean definition names: " + Arrays.toString(appCtx.getBeanDefinitionNames()));
-
-
             AdminRestController adminUserController = appCtx.getBean(AdminRestController.class);
-            adminUserController.create(new User(null, "userName", "email@mail.ru", "password", Role.ROLE_ADMIN, (Meal) null));
+            adminUserController.create(new User(null, "userName", "email@mail.ru", "password", Role.ROLE_ADMIN));
             System.out.println();
 
             MealRestController mealController = appCtx.getBean(MealRestController.class);

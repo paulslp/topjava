@@ -2,14 +2,9 @@ package ru.javawebinar.topjava;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
 
 
 public class Profiles {
-
-    @Autowired
-    private Environment env;
-
 
     public static final String
             JDBC = "jdbc",
@@ -23,7 +18,6 @@ public class Profiles {
             POSTGRES_DB = "postgres",
             HSQL_DB = "hsqldb";
 
-    //  Get DB profile depending of DB driver in classpath
     public static String getActiveDbProfile() {
         try {
 

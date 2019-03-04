@@ -10,15 +10,14 @@ import ru.javawebinar.topjava.model.Meal;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 public interface CrudMealRepository extends JpaRepository<Meal, Integer> {
 
-    @Transactional
+
     @Override
     Meal save(Meal Meal);
 
-    @Transactional
+
     @Modifying
     @Query("DELETE FROM Meal m WHERE m.id=:id and m.user.id=:userId")
     int delete(@Param("id") int id, @Param("userId") int userId);
