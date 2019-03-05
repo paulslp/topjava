@@ -19,15 +19,17 @@ public interface CrudUserRepository extends JpaRepository<User, Integer> {
     int delete(@Param("id") int id);
 
 
-    @Query("select u from User u inner join fetch u.meals m where u.id = :id ORDER BY m.dateTime DESC ")
+    @Query("select u from User u left join fetch u.meals m where u.id = :id ORDER BY m.dateTime DESC ")
     User getWithMeals(@Param("id") int id);
 
 
     @Override
     User save(User user);
 
-    @Override
-    Optional<User> findById(Integer id);
+
+    default User getById(Integer id) {
+        return findById(id).orElse(null);
+    }
 
     @Override
     List<User> findAll(Sort sort);

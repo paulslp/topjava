@@ -30,10 +30,9 @@ public class DataJpaUserRepositoryImpl implements UserRepository {
 
     @Override
     public User get(int id) {
-        return crudRepository.findById(id).orElse(null);
+        return crudRepository.getById(id);
     }
 
-    @Transactional
     @Override
     public User getWithMeals(int id) {
         return crudRepository.getWithMeals(id);
@@ -44,7 +43,6 @@ public class DataJpaUserRepositoryImpl implements UserRepository {
         return crudRepository.getByEmail(email);
     }
 
-    @Transactional
     @Override
     public List<User> getAll() {
         return crudRepository.findAll(SORT_NAME_EMAIL);

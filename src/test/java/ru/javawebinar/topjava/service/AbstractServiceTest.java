@@ -49,10 +49,6 @@ public abstract class AbstractServiceTest {
         }
     };
 
-    @AfterClass
-    public static void clearOldResult() {
-        results.setLength(0);
-    }
 
     @AfterClass
     public static void printResult() {
@@ -61,6 +57,7 @@ public abstract class AbstractServiceTest {
                 "\n---------------------------------" +
                 results +
                 "\n---------------------------------");
+        results.setLength(0);
     }
 
 }

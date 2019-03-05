@@ -34,7 +34,11 @@ public class MealTestData {
     }
 
     public static void assertMatch(Meal actual, Meal expected) {
-        assertThat(actual).isEqualTo(expected);
+        assertThat(actual).isEqualToIgnoringGivenFields(expected,"user");
+    }
+
+    public static void assertWithUser(Meal actual, Meal expected) {
+        assertThat(actual).isEqualToComparingFieldByField(expected);
     }
 
 

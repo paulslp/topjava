@@ -10,7 +10,6 @@ import ru.javawebinar.topjava.repository.MealRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public class DataJpaMealRepositoryImpl implements MealRepository {
@@ -49,11 +48,9 @@ public class DataJpaMealRepositoryImpl implements MealRepository {
 
     @Override
     public Meal get(int id, int userId) {
-        Meal meal = crudRepository.findByIdAndUserId(id, userId);
-        return meal;
+        return crudRepository.findByIdAndUserId(id, userId);
     }
 
-    @Transactional
     @Override
     public Meal getWithUser(int id, int userId) {
         return crudRepository.getWithUser(id, userId);
