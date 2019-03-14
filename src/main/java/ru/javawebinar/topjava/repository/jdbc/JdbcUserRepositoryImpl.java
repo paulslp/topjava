@@ -1,18 +1,21 @@
 package ru.javawebinar.topjava.repository.jdbc;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.*;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
 
-import java.util.List;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 @Transactional(transactionManager = "JDBCtransactionManager", readOnly = true)
 @Repository
@@ -58,22 +61,43 @@ public class JdbcUserRepositoryImpl implements UserRepository {
         return jdbcTemplate.update("DELETE FROM users WHERE id=?", id) != 0;
     }
 
-    @Transactional(transactionManager = "JDBCtransactionManager")
+    public User getUserWithRolesFromDb(User user) {
+        Collection<Role> roles = new ArrayList<>();
+        List<String> rolesString = jdbcTemplate.query("SELECT role FROM user_roles WHERE user_id=?", new RowMapper() {
+                    public Object mapRow(ResultSet resultSet, int i) throws SQLException {
+                        return resultSet.getString(1);
+                    }
+                },
+                user.getId());
+        rolesString.stream().forEach(role -> roles.add(Role.valueOf(role)));
+        user.setRoles(roles);
+        return user;
+    }
+
+    public User getUserWithRoles(List<User> users) {
+        User user = DataAccessUtils.singleResult(users);
+        return user == null ? null : getUserWithRolesFromDb(user);
+    }
+
     @Override
     public User get(int id) {
         List<User> users = jdbcTemplate.query("SELECT * FROM users WHERE id=?", ROW_MAPPER, id);
-        return DataAccessUtils.singleResult(users);
+        return getUserWithRoles(users);
     }
 
     @Override
     public User getByEmail(String email) {
 //        return jdbcTemplate.queryForObject("SELECT * FROM users WHERE email=?", ROW_MAPPER, email);
         List<User> users = jdbcTemplate.query("SELECT * FROM users WHERE email=?", ROW_MAPPER, email);
-        return DataAccessUtils.singleResult(users);
+        return getUserWithRoles(users);
     }
 
     @Override
     public List<User> getAll() {
-        return jdbcTemplate.query("SELECT * FROM users ORDER BY name, email", ROW_MAPPER);
+        List<User> userListWithRoles = new ArrayList<>();
+        List<User> userList = jdbcTemplate.query("SELECT * FROM users ORDER BY name, email", ROW_MAPPER);
+        userList.stream().forEach(user -> userListWithRoles.add(getUserWithRoles(Collections.singletonList(user))));
+
+        return userListWithRoles;
     }
 }
