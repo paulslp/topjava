@@ -28,17 +28,8 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
     private Environment environment;
 
     @Autowired
-    private CacheManager cacheManager;
+    protected CacheManager cacheManager;
 
-//    @Autowired
-//    protected JpaUtil jpaUtil;
-
-
-    @Before
-    public void setUp() throws Exception {
-        cacheManager.getCache("users").clear();
-           // jpaUtil.clear2ndLevelHibernateCache();
-    }
 
     @Test
     public void create() throws Exception {
