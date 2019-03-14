@@ -10,11 +10,12 @@
 <body>
 <jsp:include page="fragments/bodyHeader.jsp"/>
 <section>
-    <h3><a href="index.html">Home</a></h3>
-    <h2>${param.action == 'create' ? 'Create meal' : 'Edit meal'}</h2>
-    <hr>
+    <h3><a href=${pageContext.request.contextPath}>Home</a></h3>
     <jsp:useBean id="meal" type="ru.javawebinar.topjava.model.Meal" scope="request"/>
     <form method="post" action="meals">
+        <h2>${meal.id == null ? 'Create meal' : 'Edit meal'}</h2>
+        <hr>
+
         <input type="hidden" name="id" value="${meal.id}">
         <dl>
             <dt>DateTime:</dt>

@@ -1,9 +1,11 @@
 package ru.javawebinar.topjava.service;
 
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
+import org.springframework.core.env.Environment;
 import org.springframework.dao.DataAccessException;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
@@ -23,15 +25,19 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
     protected UserService service;
 
     @Autowired
-    private CacheManager cacheManager;
+    private Environment environment;
 
     @Autowired
-    protected JpaUtil jpaUtil;
+    private CacheManager cacheManager;
+
+//    @Autowired
+//    protected JpaUtil jpaUtil;
+
 
     @Before
     public void setUp() throws Exception {
         cacheManager.getCache("users").clear();
-        jpaUtil.clear2ndLevelHibernateCache();
+           // jpaUtil.clear2ndLevelHibernateCache();
     }
 
     @Test
@@ -90,8 +96,19 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
         assertMatch(all, ADMIN, USER);
     }
 
+    private boolean isJDBC() {
+        for (String profile : environment.getActiveProfiles()) {
+            if (profile.toUpperCase().equals("JDBC")) return true;
+        }
+        return false;
+    }
+
     @Test
     public void testValidation() throws Exception {
+        if (isJDBC()) {
+            thrown.expect(org.junit.AssumptionViolatedException.class);
+            Assume.assumeTrue(!isJDBC());
+        }
         validateRootCause(() -> service.create(new User(null, "  ", "mail@yandex.ru", "password", Role.ROLE_USER)), ConstraintViolationException.class);
         validateRootCause(() -> service.create(new User(null, "User", "  ", "password", Role.ROLE_USER)), ConstraintViolationException.class);
         validateRootCause(() -> service.create(new User(null, "User", "mail@yandex.ru", "  ", Role.ROLE_USER)), ConstraintViolationException.class);
