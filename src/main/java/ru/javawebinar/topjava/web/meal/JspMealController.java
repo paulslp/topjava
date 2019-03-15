@@ -34,7 +34,7 @@ public class JspMealController extends AbstractMealController {
 
     @GetMapping({"/create", "/update"})
     public String showMealFormForCreate(Model model, HttpServletRequest request) {
-        Meal meal = (request.getRequestURI().endsWith("create")) ?
+        Meal meal = (request.getParameter("id")==null) ?
                 new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000) :
                 service.get(Integer.valueOf(request.getParameter("id")), SecurityUtil.authUserId());
         model.addAttribute("meal", meal);

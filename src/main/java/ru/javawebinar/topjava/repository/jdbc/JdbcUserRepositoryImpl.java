@@ -17,6 +17,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Transactional(readOnly = true)
 @Repository
@@ -83,11 +84,8 @@ public class JdbcUserRepositoryImpl implements UserRepository {
 
     @Override
     public List<User> getAll() {
-        List<User> userListWithRoles = new ArrayList<>();
-        List<User> userList = jdbcTemplate.query("SELECT * FROM users ORDER BY name, email", ROW_MAPPER);
-        userList.stream().forEach(user -> userListWithRoles.add(getUserWithRoles(Collections.singletonList(user))));
-
-        return userListWithRoles;
+        List<User> userList = jdbcTemplate.query("SELECT u.*, r.role FROM users u LEFT JOIN user_roles r on u.id = r.user_id ORDER BY name, email", new UserResultSetExtractor());
+        return userList;
     }
 
     private User getUserWithRoles(List<User> users) {
@@ -118,5 +116,29 @@ public class JdbcUserRepositoryImpl implements UserRepository {
                 return user.getRoles().size();
             }
         });
+    }
+
+    static final class UserResultSetExtractor implements ResultSetExtractor<List<User>> {
+        @Override
+        public List<User> extractData(ResultSet rs) throws SQLException {
+            Map<Integer, User> mapUser = new LinkedHashMap<>();
+            User user;
+            while (rs.next()) {
+                int key = rs.getInt("id");
+                if (!mapUser.containsKey(key)) {
+                    user = new User(rs.getInt("id"), rs.getString("name")
+                            , rs.getString("email"), rs.getString("password")
+                            , rs.getInt("calories_per_day"), rs.getBoolean("enabled")
+                            , rs.getDate("registered"), null
+                    );
+                    user.setRoles(Collections.singleton(Role.valueOf(rs.getString("role"))));
+                    mapUser.put(key, user);
+                } else {
+                    user = mapUser.get(key);
+                    user.getRoles().add(Role.valueOf(rs.getString("role")));
+                }
+            }
+            return mapUser.values().stream().collect(Collectors.toList());
+        }
     }
 }
