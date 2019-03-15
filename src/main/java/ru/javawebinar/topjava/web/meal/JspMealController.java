@@ -1,45 +1,34 @@
 package ru.javawebinar.topjava.web.meal;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.service.MealService;
-import ru.javawebinar.topjava.util.DateTimeUtil;
-import ru.javawebinar.topjava.util.MealsUtil;
 import ru.javawebinar.topjava.web.SecurityUtil;
 
 import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 
 import static ru.javawebinar.topjava.util.DateTimeUtil.parseLocalDate;
 import static ru.javawebinar.topjava.util.DateTimeUtil.parseLocalTime;
-import static ru.javawebinar.topjava.util.Util.orElse;
 
 @Controller
 @RequestMapping(value = "/meals")
-public class JspMealController {
-    @Autowired
-    private MealService service;
+public class JspMealController extends AbstractMealController {
+
 
     @GetMapping("")
     public String getAll(Model model) {
-        int userId = SecurityUtil.authUserId();
-        model.addAttribute("meals", MealsUtil.getWithExcess(service.getAll(userId), SecurityUtil.authUserCaloriesPerDay()));
+        model.addAttribute("meals", super.getAll());
         return "/meals";
     }
 
     @GetMapping("/delete")
     public String delete(HttpServletRequest request) {
-        service.delete(Integer.valueOf(request.getParameter("id")), SecurityUtil.authUserId());
+        super.delete(Integer.valueOf(request.getParameter("id")));
         return "redirect:/meals";
     }
 
@@ -70,14 +59,12 @@ public class JspMealController {
 
     @PostMapping("/filter")
     public String getBetween(Model model, HttpServletRequest request) {
-        LocalDate startDate = orElse(parseLocalDate(request.getParameter("startDate")),LocalDate.of(1970,1,1));
-        LocalDate endDate = orElse(parseLocalDate(request.getParameter("endDate")),LocalDate.now());
-        LocalTime startTime = orElse(parseLocalTime(request.getParameter("startTime")),LocalTime.MIN);
-        LocalTime endTime = orElse(parseLocalTime(request.getParameter("endTime")),LocalTime.MAX);
-        List<Meal> mealsDateFiltered = service.getBetweenDateTimes(startDate.atTime(startTime), endDate.atTime(endTime), SecurityUtil.authUserId());
-
-        model.addAttribute("meals", MealsUtil.getFilteredWithExcess(mealsDateFiltered, SecurityUtil.authUserCaloriesPerDay(),
-                startTime, endTime));
+        model.addAttribute("meals",
+                super.getBetween(parseLocalDate(request.getParameter("startDate")),
+                        parseLocalTime(request.getParameter("startTime")),
+                        parseLocalDate(request.getParameter("endDate")),
+                        parseLocalTime(request.getParameter("endTime")))
+        );
         return "/meals";
     }
 

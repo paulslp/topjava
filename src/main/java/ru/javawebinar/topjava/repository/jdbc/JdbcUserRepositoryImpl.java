@@ -13,11 +13,12 @@ import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-@Transactional(transactionManager = "JDBCtransactionManager", readOnly = true)
+@Transactional(readOnly = true)
 @Repository
 public class JdbcUserRepositoryImpl implements UserRepository {
 
@@ -28,6 +29,7 @@ public class JdbcUserRepositoryImpl implements UserRepository {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     private final SimpleJdbcInsert insertUser;
+
 
     @Autowired
     public JdbcUserRepositoryImpl(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
@@ -40,7 +42,7 @@ public class JdbcUserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    @Transactional(transactionManager = "JDBCtransactionManager")
+    @Transactional
     public User save(User user) {
         BeanPropertySqlParameterSource parameterSource = new BeanPropertySqlParameterSource(user);
 
@@ -51,33 +53,20 @@ public class JdbcUserRepositoryImpl implements UserRepository {
                 "UPDATE users SET name=:name, email=:email, password=:password, " +
                         "registered=:registered, enabled=:enabled, calories_per_day=:caloriesPerDay WHERE id=:id", parameterSource) == 0) {
             return null;
+        } else {
+            updateBatchRoles(user, "DELETE FROM user_roles WHERE user_id=?", false);
         }
+        updateBatchRoles(user, "INSERT INTO user_roles (user_id, role) VALUES (?,?) ", true);
         return user;
     }
 
-    @Transactional(transactionManager = "JDBCtransactionManager")
+
+    @Transactional
     @Override
     public boolean delete(int id) {
         return jdbcTemplate.update("DELETE FROM users WHERE id=?", id) != 0;
     }
 
-    public User getUserWithRolesFromDb(User user) {
-        Collection<Role> roles = new ArrayList<>();
-        List<String> rolesString = jdbcTemplate.query("SELECT role FROM user_roles WHERE user_id=?", new RowMapper() {
-                    public Object mapRow(ResultSet resultSet, int i) throws SQLException {
-                        return resultSet.getString(1);
-                    }
-                },
-                user.getId());
-        rolesString.stream().forEach(role -> roles.add(Role.valueOf(role)));
-        user.setRoles(roles);
-        return user;
-    }
-
-    public User getUserWithRoles(List<User> users) {
-        User user = DataAccessUtils.singleResult(users);
-        return user == null ? null : getUserWithRolesFromDb(user);
-    }
 
     @Override
     public User get(int id) {
@@ -99,5 +88,35 @@ public class JdbcUserRepositoryImpl implements UserRepository {
         userList.stream().forEach(user -> userListWithRoles.add(getUserWithRoles(Collections.singletonList(user))));
 
         return userListWithRoles;
+    }
+
+    private User getUserWithRoles(List<User> users) {
+        User user = DataAccessUtils.singleResult(users);
+        if (user == null) {
+            return null;
+        } else {
+            user.setRoles(jdbcTemplate.query("SELECT role FROM user_roles WHERE user_id=?",
+                    (resultSet, i) -> Role.valueOf(resultSet.getString(1)),
+                    user.getId()));
+            return user;
+        }
+    }
+
+    private void updateBatchRoles(User user, String sql, boolean twoParameters) {
+        jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
+            @Override
+            public void setValues(PreparedStatement ps, int i) throws SQLException {
+                Role role = new ArrayList<Role>(user.getRoles()).get(i);
+                ps.setInt(1, user.getId());
+                if (twoParameters) {
+                    ps.setString(2, role.name());
+                }
+            }
+
+            @Override
+            public int getBatchSize() {
+                return user.getRoles().size();
+            }
+        });
     }
 }
