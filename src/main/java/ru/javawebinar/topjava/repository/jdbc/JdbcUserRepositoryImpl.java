@@ -55,9 +55,9 @@ public class JdbcUserRepositoryImpl implements UserRepository {
                         "registered=:registered, enabled=:enabled, calories_per_day=:caloriesPerDay WHERE id=:id", parameterSource) == 0) {
             return null;
         } else {
-            updateBatchRoles(user, "DELETE FROM user_roles WHERE user_id=?", false);
+            deleteRoles(user.getId());
         }
-        updateBatchRoles(user, "INSERT INTO user_roles (user_id, role) VALUES (?,?) ", true);
+        insertRoles(user);
         return user;
     }
 
@@ -84,8 +84,7 @@ public class JdbcUserRepositoryImpl implements UserRepository {
 
     @Override
     public List<User> getAll() {
-        List<User> userList = jdbcTemplate.query("SELECT u.*, r.role FROM users u LEFT JOIN user_roles r on u.id = r.user_id ORDER BY name, email", new UserResultSetExtractor());
-        return userList;
+        return jdbcTemplate.query("SELECT u.*, r.role FROM users u LEFT JOIN user_roles r on u.id = r.user_id ORDER BY name, email", new UserResultSetExtractor());
     }
 
     private User getUserWithRoles(List<User> users) {
@@ -100,15 +99,13 @@ public class JdbcUserRepositoryImpl implements UserRepository {
         }
     }
 
-    private void updateBatchRoles(User user, String sql, boolean twoParameters) {
-        jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
+    private void insertRoles(User user) {
+        jdbcTemplate.batchUpdate("INSERT INTO user_roles (user_id, role) VALUES (?,?) ", new BatchPreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
                 Role role = new ArrayList<Role>(user.getRoles()).get(i);
                 ps.setInt(1, user.getId());
-                if (twoParameters) {
-                    ps.setString(2, role.name());
-                }
+                ps.setString(2, role.name());
             }
 
             @Override
@@ -116,6 +113,10 @@ public class JdbcUserRepositoryImpl implements UserRepository {
                 return user.getRoles().size();
             }
         });
+    }
+
+    private boolean deleteRoles(int id) {
+        return jdbcTemplate.update("DELETE FROM user_roles WHERE user_id=?", id) != 0;
     }
 
     static final class UserResultSetExtractor implements ResultSetExtractor<List<User>> {
@@ -138,7 +139,7 @@ public class JdbcUserRepositoryImpl implements UserRepository {
                     user.getRoles().add(Role.valueOf(rs.getString("role")));
                 }
             }
-            return mapUser.values().stream().collect(Collectors.toList());
+            return new ArrayList<>(mapUser.values());
         }
     }
 }

@@ -98,10 +98,4 @@ public abstract class AbstractMealServiceTest extends AbstractServiceTest {
     }
 
 
-    private boolean isJDBC() {
-        for (String profile : environment.getActiveProfiles()) {
-            if (profile.toUpperCase().equals("JDBC")) return true;
-        }
-        return false;
-    }
 }

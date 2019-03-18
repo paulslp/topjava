@@ -32,28 +32,33 @@ public class JspMealController extends AbstractMealController {
         return "redirect:/meals";
     }
 
-    @GetMapping({"/create", "/update"})
+    @GetMapping({"/create"})
     public String showMealFormForCreate(Model model, HttpServletRequest request) {
-        Meal meal = (request.getParameter("id")==null) ?
-                new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000) :
-                service.get(Integer.valueOf(request.getParameter("id")), SecurityUtil.authUserId());
-        model.addAttribute("meal", meal);
-        return "mealForm";
+        return addMealAttrributeAndShowForm(model, new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000));
     }
 
-    @PostMapping("meals")
-    public String update(HttpServletRequest request) {
-        Meal meal = new Meal(
+    @GetMapping({"/update"})
+    public String showMealFormForUpdate(Model model, HttpServletRequest request) {
+        return addMealAttrributeAndShowForm(model, service.get(Integer.valueOf(request.getParameter("id")), SecurityUtil.authUserId()));
+    }
+
+    @PostMapping("insert")
+    public String create(HttpServletRequest request) {
+        super.create(createMealFromRequestData(request));
+        return "redirect:/meals";
+    }
+
+    private Meal createMealFromRequestData(HttpServletRequest request) {
+        return new Meal(request.getParameter("id").isEmpty() ? null : Integer.valueOf(request.getParameter("id")),
                 LocalDateTime.parse(request.getParameter("dateTime")),
                 request.getParameter("description"),
                 Integer.parseInt(request.getParameter("calories")));
-        if ("".equals(request.getParameter("id"))) {
-            service.create(meal, SecurityUtil.authUserId());
-        } else {
-            meal.setId(Integer.valueOf(request.getParameter("id")));
-            service.update(meal, SecurityUtil.authUserId());
-        }
+    }
 
+
+    @PostMapping("update")
+    public String update(HttpServletRequest request) {
+        super.update(createMealFromRequestData(request), Integer.valueOf(request.getParameter("id")));
         return "redirect:/meals";
     }
 
@@ -65,7 +70,8 @@ public class JspMealController extends AbstractMealController {
                         parseLocalDate(request.getParameter("endDate")),
                         parseLocalTime(request.getParameter("endTime")))
         );
-        return "/meals";
+
+        return "meals";
     }
 
 }

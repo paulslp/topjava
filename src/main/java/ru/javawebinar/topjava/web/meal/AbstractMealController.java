@@ -3,6 +3,7 @@ package ru.javawebinar.topjava.web.meal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ui.Model;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.to.MealTo;
@@ -15,6 +16,8 @@ import java.time.LocalTime;
 import java.util.List;
 
 import static ru.javawebinar.topjava.util.Util.orElse;
+import static ru.javawebinar.topjava.util.ValidationUtil.assureIdConsistent;
+import static ru.javawebinar.topjava.util.ValidationUtil.checkNew;
 
 public class AbstractMealController {
     protected static final Logger log = LoggerFactory.getLogger(MealRestController.class);
@@ -34,6 +37,24 @@ public class AbstractMealController {
         service.delete(id, userId);
     }
 
+    public Meal create(Meal meal) {
+        int userId = SecurityUtil.authUserId();
+        checkNew(meal);
+        log.info("create {} for user {}", meal, userId);
+        return service.create(meal, userId);
+    }
+
+    protected String addMealAttrributeAndShowForm(Model model, Meal meal) {
+        model.addAttribute(meal);
+        return "mealForm";
+    }
+
+    public void update(Meal meal, int id) {
+        int userId = SecurityUtil.authUserId();
+        assureIdConsistent(meal, id);
+        log.info("update {} for user {}", meal, userId);
+        service.update(meal, userId);
+    }
 
     /**
      * <ol>Filter separately

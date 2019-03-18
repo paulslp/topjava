@@ -57,4 +57,11 @@ abstract public class AbstractServiceTest {
             Assert.assertThat(getRootCause(e), instanceOf(exceptionClass));
         }
     }
+
+    protected boolean isJDBC() {
+        for (String profile : environment.getActiveProfiles()) {
+            if (profile.toUpperCase().equals("JDBC")) return true;
+        }
+        return false;
+    }
 }

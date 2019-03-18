@@ -90,19 +90,12 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
         assertMatch(all, ADMIN, USER);
     }
 
-    private boolean isJDBC() {
-        for (String profile : environment.getActiveProfiles()) {
-            if (profile.toUpperCase().equals("JDBC")) return true;
-        }
-        return false;
-    }
+
 
     @Test
     public void testValidation() {
-        if (isJDBC()) {
-            thrown.expect(org.junit.AssumptionViolatedException.class);
-            Assume.assumeTrue(!isJDBC());
-        }
+        Assume.assumeTrue(!isJDBC());
+
         validateRootCause(() -> service.create(new User(null, "  ", "mail@yandex.ru", "password", Role.ROLE_USER)), ConstraintViolationException.class);
         validateRootCause(() -> service.create(new User(null, "User", "  ", "password", Role.ROLE_USER)), ConstraintViolationException.class);
         validateRootCause(() -> service.create(new User(null, "User", "mail@yandex.ru", "  ", Role.ROLE_USER)), ConstraintViolationException.class);
