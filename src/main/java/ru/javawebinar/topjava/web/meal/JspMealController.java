@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.web.SecurityUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -39,7 +38,7 @@ public class JspMealController extends AbstractMealController {
 
     @GetMapping({"/update"})
     public String showMealFormForUpdate(Model model, HttpServletRequest request) {
-        return addMealAttrributeAndShowForm(model, service.get(Integer.valueOf(request.getParameter("id")), SecurityUtil.authUserId()));
+        return addMealAttrributeAndShowForm(model, super.get(Integer.valueOf(request.getParameter("id"))));
     }
 
     @PostMapping("insert")
@@ -53,6 +52,11 @@ public class JspMealController extends AbstractMealController {
                 LocalDateTime.parse(request.getParameter("dateTime")),
                 request.getParameter("description"),
                 Integer.parseInt(request.getParameter("calories")));
+    }
+
+    private String addMealAttrributeAndShowForm(Model model, Meal meal) {
+        model.addAttribute(meal);
+        return "mealForm";
     }
 
 

@@ -44,10 +44,7 @@ public class AbstractMealController {
         return service.create(meal, userId);
     }
 
-    protected String addMealAttrributeAndShowForm(Model model, Meal meal) {
-        model.addAttribute(meal);
-        return "mealForm";
-    }
+
 
     public void update(Meal meal, int id) {
         int userId = SecurityUtil.authUserId();
@@ -72,5 +69,11 @@ public class AbstractMealController {
         return MealsUtil.getFilteredWithExcess(mealsDateFiltered, SecurityUtil.authUserCaloriesPerDay(),
                 orElse(startTime, LocalTime.MIN), orElse(endTime, LocalTime.MAX)
         );
+    }
+
+    public Meal get(int id) {
+        int userId = SecurityUtil.authUserId();
+        log.info("get meal {} for user {}", id, userId);
+        return service.get(id, userId);
     }
 }
