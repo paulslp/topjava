@@ -23,14 +23,20 @@ public class MealRestController extends AbstractMealController {
 
     @DeleteMapping(REST_URL + "/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable int id) {
+    public void delete(@PathVariable("id") int id) {
         super.delete(id);
     }
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, path = REST_URL + "/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void update(@RequestBody Meal meal, @PathVariable int id) {
+    public void update(@RequestBody Meal meal, @PathVariable("id") int id) {
         super.update(meal, id);
+    }
+
+
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, path = REST_URL)
+    public Meal create(@RequestBody Meal meal) {
+        return super.create(meal);
     }
 
 
@@ -39,10 +45,12 @@ public class MealRestController extends AbstractMealController {
                                            @RequestParam(value = "startTime", required = false) LocalTime startTime,
                                            @RequestParam(value = "endDate", required = false) LocalDate endDate,
                                            @RequestParam(value = "endTime", required = false) LocalTime endTime) {
-        return super.getBetween((startDate == null) ? LocalDate.of(1970, 1, 1) : startDate,
-                (startTime == null) ? LocalTime.of(0, 0) : startTime,
-                (endDate == null) ? LocalDate.of(3000, 1, 1) : endDate,
-                (endTime == null) ? LocalTime.of(23, 59, 59) : endTime);
+        return super.getBetween(startDate, startTime, endDate, endTime);
+    }
+
+    @GetMapping(REST_URL)
+    public List<MealTo> getAll() {
+        return super.getAll();
     }
 
 }

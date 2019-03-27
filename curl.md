@@ -4,6 +4,8 @@ curl -X GET --noproxy "*" "http://localhost:8080/topjava/rest/meal/filter?startD
 
 curl -X GET --noproxy "*" "http://localhost:8080/topjava/rest/meal/filter?startDate=2015-05-30&endDate=2015-05-30"
 
+curl -X GET --noproxy "*" "http://localhost:8080/topjava/rest/meal"
+
 curl -X DELETE --noproxy "*" "http://localhost:8080/topjava/rest/meal/100004"
 
 

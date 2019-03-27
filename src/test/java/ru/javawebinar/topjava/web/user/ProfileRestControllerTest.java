@@ -27,21 +27,21 @@ import static ru.javawebinar.topjava.web.user.ProfileRestController.REST_URL;
         );
     }
 
-//    @Test
-//    void testDelete() throws Exception {
-//        mockMvc.perform(delete(REST_URL))
-//                .andExpect(status().isNoContent());
-//        assertMatch(userService.getAll(), ADMIN);
-//    }
+    @Test
+    void testDelete() throws Exception {
+        mockMvc.perform(delete(REST_URL))
+                .andExpect(status().isNoContent());
+        assertMatch(userService.getAll(), ADMIN);
+    }
 
-//    @Test
-//    void testUpdate() throws Exception {
-//        User updated = new User(USER_ID, "newName", "newemail@ya.ru", "newPassword", Role.ROLE_USER);
-//        mockMvc.perform(put(REST_URL).contentType(MediaType.APPLICATION_JSON)
-//                .content(JsonUtil.writeValue(updated)))
-//                .andDo(print())
-//                .andExpect(status().isNoContent());
-//
-//        assertMatch(new User(userService.getByEmail("newemail@ya.ru")), updated);
-//    }
+    @Test
+    void testUpdate() throws Exception {
+        User updated = new User(USER_ID, "newName", "newemail@ya.ru", "newPassword", Role.ROLE_USER);
+        mockMvc.perform(put(REST_URL).contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(updated)))
+                .andDo(print())
+                .andExpect(status().isNoContent());
+
+        assertMatch(new User(userService.getByEmail("newemail@ya.ru")), updated);
+    }
 }

@@ -2,7 +2,6 @@ package ru.javawebinar.topjava.web;
 
 import org.hamcrest.*;
 import org.junit.jupiter.api.Test;
-import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.to.MealTo;
 import ru.javawebinar.topjava.util.MealsUtil;
 
@@ -14,10 +13,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static ru.javawebinar.topjava.MealTestData.*;
+import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
 import static ru.javawebinar.topjava.UserTestData.USER;
 import static ru.javawebinar.topjava.model.AbstractBaseEntity.START_SEQ;
 
-class RootControllerTest extends AbstractControllerTest {
+class RootControllerTest extends AbstractTestWithAuthUserRestore {
 
 
     @Test
@@ -38,8 +38,7 @@ class RootControllerTest extends AbstractControllerTest {
 
     @Test
     void testMeals() throws Exception {
-        int userId_before = SecurityUtil.authUserId();
-        SecurityUtil.setAuthUserId(START_SEQ + 1);
+        SecurityUtil.setAuthUserId(ADMIN_ID);
         List<MealTo> expectedList = MealsUtil.getWithExcess(Arrays.asList(ADMIN_MEAL2, ADMIN_MEAL1), SecurityUtil.authUserCaloriesPerDay());
         mockMvc.perform(get("/meals"))
                 .andDo(print())
@@ -48,7 +47,6 @@ class RootControllerTest extends AbstractControllerTest {
                 .andExpect(forwardedUrl("/WEB-INF/jsp/meals.jsp"))
                 .andExpect(model().attribute("meals", hasSize(2)))
                 .andExpect(model().attribute("meals", mealToMatcher(expectedList, "CompareMealToLists")));
-        SecurityUtil.setAuthUserId(userId_before);
     }
 
 
@@ -56,7 +54,7 @@ class RootControllerTest extends AbstractControllerTest {
         return new CustomMatcher<>(description) {
             @Override
             public boolean matches(Object actualList) {
-                assertMatch((List<MealTo>) actualList, expectedList);
+                assertMatchFieldByField((List<MealTo>) actualList, expectedList);
                 return true;
             }
         };
