@@ -40,10 +40,12 @@ public class MealRestControllerTest extends AbstractControllerTest {
         TestUtil.print(
                 mockMvc.perform(get(REST_URL + MEAL1_ID))
                         .andExpect(status().isOk())
+                        .andDo(print())
                         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                         .andExpect(contentJson(MEAL1))
         );
     }
+
 
     @Test
     void testDelete() throws Exception {
@@ -67,7 +69,6 @@ public class MealRestControllerTest extends AbstractControllerTest {
 
     @Test
     void testCreate() throws Exception {
-        SecurityUtil.setAuthUserId(USER_ID);
         Meal expected = new Meal(LocalDateTime.now(), "new description", 300);
         expected.setUser(USER);
         ResultActions action = mockMvc.perform(post(REST_URL).contentType(MediaType.APPLICATION_JSON)
@@ -82,7 +83,6 @@ public class MealRestControllerTest extends AbstractControllerTest {
 
     @Test
     void testGetAll() throws Exception {
-        SecurityUtil.setAuthUserId(USER_ID);
         TestUtil.print(
                 mockMvc.perform(get(REST_URL))
                         .andExpect(status().isOk())
@@ -102,7 +102,6 @@ public class MealRestControllerTest extends AbstractControllerTest {
     }
 
     void testGetBetween(String query) throws Exception {
-        SecurityUtil.setAuthUserId(USER_ID);
         TestUtil.print(
                 mockMvc.perform(get(REST_URL + query))
                         .andExpect(status().isOk())
