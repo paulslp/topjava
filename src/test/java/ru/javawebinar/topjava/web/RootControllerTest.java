@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import ru.javawebinar.topjava.to.MealTo;
 import ru.javawebinar.topjava.util.MealsUtil;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
@@ -12,11 +11,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static ru.javawebinar.topjava.MealTestData.*;
-import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
 import static ru.javawebinar.topjava.UserTestData.USER;
 import static ru.javawebinar.topjava.model.AbstractBaseEntity.START_SEQ;
 
-class RootControllerTest extends AbstractTestWithAuthUserRestore {
+class RootControllerTest extends AbstractControllerTest {
 
 
     @Test
@@ -37,14 +35,13 @@ class RootControllerTest extends AbstractTestWithAuthUserRestore {
 
     @Test
     void testMeals() throws Exception {
-        SecurityUtil.setAuthUserId(ADMIN_ID);
-        List<MealTo> expectedList = MealsUtil.getWithExcess(Arrays.asList(ADMIN_MEAL2, ADMIN_MEAL1), SecurityUtil.authUserCaloriesPerDay());
+        List<MealTo> expectedList = MealsUtil.getWithExcess(List.of(MEAL6, MEAL5, MEAL4, MEAL3, MEAL2, MEAL1), SecurityUtil.authUserCaloriesPerDay());
         mockMvc.perform(get("/meals"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("meals"))
                 .andExpect(forwardedUrl("/WEB-INF/jsp/meals.jsp"))
-                .andExpect(model().attribute("meals", hasSize(2)))
+                .andExpect(model().attribute("meals", hasSize(6)))
                 .andExpect(model().attribute("meals", expectedList));
     }
 
