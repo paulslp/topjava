@@ -1,6 +1,5 @@
 package ru.javawebinar.topjava.web;
 
-import org.hamcrest.*;
 import org.junit.jupiter.api.Test;
 import ru.javawebinar.topjava.to.MealTo;
 import ru.javawebinar.topjava.util.MealsUtil;
@@ -46,20 +45,8 @@ class RootControllerTest extends AbstractTestWithAuthUserRestore {
                 .andExpect(view().name("meals"))
                 .andExpect(forwardedUrl("/WEB-INF/jsp/meals.jsp"))
                 .andExpect(model().attribute("meals", hasSize(2)))
-                .andExpect(model().attribute("meals", mealToMatcher(expectedList, "CompareMealToLists")));
+                .andExpect(model().attribute("meals", expectedList));
     }
-
-
-    private Matcher<List<MealTo>> mealToMatcher(final List<MealTo> expectedList, String description) {
-        return new CustomMatcher<>(description) {
-            @Override
-            public boolean matches(Object actualList) {
-                assertMatchFieldByField((List<MealTo>) actualList, expectedList);
-                return true;
-            }
-        };
-    }
-
 
 
 }

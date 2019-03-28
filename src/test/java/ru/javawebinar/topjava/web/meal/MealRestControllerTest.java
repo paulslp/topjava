@@ -10,7 +10,6 @@ import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.util.MealsUtil;
 import ru.javawebinar.topjava.web.AbstractTestWithAuthUserRestore;
 import ru.javawebinar.topjava.web.SecurityUtil;
-import ru.javawebinar.topjava.web.json.JsonUtil;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -72,7 +71,7 @@ public class MealRestControllerTest extends AbstractTestWithAuthUserRestore {
         SecurityUtil.setAuthUserId(USER_ID);
         Meal created = new Meal(LocalDateTime.now(), "new description", 300);
         created.setUser(USER);
-        mockMvc.perform(post(REST_URL , created).contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(post(REST_URL, created).contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(created)))
                 .andDo(print());
         created.setId(100010);
@@ -86,7 +85,7 @@ public class MealRestControllerTest extends AbstractTestWithAuthUserRestore {
                 mockMvc.perform(get(REST_URL))
                         .andExpect(status().isOk())
                         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                        .andExpect(content().json(writeValue(MealsUtil.getWithExcess(Arrays.asList(MEAL1, MEAL2, MEAL3,MEAL4,MEAL5,MEAL6), DEFAULT_CALORIES_PER_DAY)))
+                        .andExpect(content().json(writeValue(MealsUtil.getWithExcess(Arrays.asList(MEAL1, MEAL2, MEAL3, MEAL4, MEAL5, MEAL6), DEFAULT_CALORIES_PER_DAY)))
                         ));
     }
 

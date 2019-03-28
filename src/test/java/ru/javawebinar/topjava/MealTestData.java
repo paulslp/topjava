@@ -2,7 +2,6 @@ package ru.javawebinar.topjava;
 
 import org.springframework.test.web.servlet.ResultMatcher;
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.to.MealTo;
 
 import java.time.Month;
 import java.util.List;
@@ -36,33 +35,23 @@ public class MealTestData {
         return new Meal(MEAL1_ID, MEAL1.getDateTime(), "Обновленный завтрак", 200);
     }
 
-    public static <T> void assertMatch(T actual, T expected) {
+    public static void assertMatch(Meal actual, Meal expected) {
         assertThat(actual).isEqualToIgnoringGivenFields(expected, "user");
     }
 
-    public static <T> void assertMatch(Iterable<T> actual, T... expected) {
+    public static void assertMatch(Iterable<Meal> actual, Meal... expected) {
         assertMatch(actual, List.of(expected));
     }
 
-    public static <T> void assertMatch(Iterable<T> actual, Iterable<T> expected) {
+    public static void assertMatch(Iterable<Meal> actual, Iterable<Meal> expected) {
         assertThat(actual).usingElementComparatorIgnoringFields("user").isEqualTo(expected);
     }
 
-    public static <T> void assertMatchFieldByField(Iterable<T> actual, Iterable<T> expected) {
-        assertThat(actual).usingFieldByFieldElementComparator().isEqualTo(expected);
-    }
-
-    public static ResultMatcher contentJson(Meal... expected) {
-        return content().json(writeIgnoreProps(List.of(expected), "user"));
-    }
 
     public static ResultMatcher contentJson(Meal expected) {
         return content().json(writeIgnoreProps(expected, "user"));
     }
 
-    public static ResultMatcher contentJson(MealTo... expected) {
-        return content().json(writeIgnoreProps(List.of(expected), "user"));
-    }
 
 }
 
