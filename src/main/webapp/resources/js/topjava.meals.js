@@ -35,8 +35,7 @@ $(function () {
     makeEditable();
 });
 
-
-function filter() {
+ function filter() {
     let form = $("#filterForm");
     $.ajax({
         type: "GET",

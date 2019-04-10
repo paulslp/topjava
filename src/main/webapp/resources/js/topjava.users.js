@@ -40,3 +40,15 @@ $(function () {
     });
     makeEditable();
 });
+
+
+function setEnabled(id) {
+    let url_checked = ajaxUrl +"checked/"+ id;
+    $.ajax({
+        type: "POST",
+        url: url_checked,
+        data: "id=" + id,
+    }).done(function () {
+        updateTable();
+    });
+}

@@ -13,7 +13,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static ru.javawebinar.topjava.UserTestData.*;
 
 public abstract class AbstractUserServiceTest extends AbstractServiceTest {
@@ -40,7 +42,7 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
     @Test
     void duplicateMailCreate() throws Exception {
         assertThrows(DataAccessException.class, () ->
-                service.create(new User(null, "Duplicate", "user@yandex.ru", "newPass", Role.ROLE_USER)));
+                    service.create(new User(null, "Duplicate", "user@yandex.ru", "newPass", Role.ROLE_USER)));
     }
 
     @Test
@@ -52,7 +54,7 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
     @Test
     void deletedNotFound() throws Exception {
         assertThrows(NotFoundException.class, () ->
-                service.delete(1));
+                    service.delete(1));
     }
 
     @Test
@@ -64,7 +66,7 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
     @Test
     void getNotFound() throws Exception {
         assertThrows(NotFoundException.class, () ->
-                service.get(1));
+                    service.get(1));
     }
 
     @Test
@@ -87,5 +89,14 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
     void getAll() throws Exception {
         List<User> all = service.getAll();
         assertMatch(all, ADMIN, USER);
+    }
+
+    @Test
+    void setEnabled() {
+        service.setEnabled(ADMIN_ID);
+        assertFalse(service.get(ADMIN_ID).isEnabled());
+        service.setEnabled(USER_ID);
+        service.setEnabled(USER_ID);
+        assertTrue(service.get(USER_ID).isEnabled());
     }
 }
