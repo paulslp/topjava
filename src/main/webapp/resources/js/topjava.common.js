@@ -45,6 +45,7 @@ function save() {
     });
 }
 
+
 let failedNote;
 
 function closeNoty() {
