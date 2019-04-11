@@ -21,7 +21,7 @@ function deleteRow(id) {
         url: ajaxUrl + id,
         type: "DELETE"
     }).done(function () {
-        updateTable();
+        updateTableFilter()
         successNoty("Deleted");
     });
 }
@@ -40,9 +40,17 @@ function save() {
         data: form.serialize()
     }).done(function () {
         $("#editRow").modal("hide");
-        updateTable();
+        updateTableFilter()
         successNoty("Saved");
     });
+}
+
+function updateTableFilter() {
+    if (ajaxUrl.indexOf("users") > 0) {
+        updateTable();
+    } else {
+        filter();
+    }
 }
 
 

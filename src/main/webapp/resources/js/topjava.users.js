@@ -43,12 +43,17 @@ $(function () {
 
 
 function setEnabled(id) {
-    let url_checked = ajaxUrl +"checked/"+ id;
     $.ajax({
         type: "POST",
-        url: url_checked,
-        data: "id=" + id,
+        url: ajaxUrl + "checked/" + id,
     }).done(function () {
-        updateTable();
+        let tr = $("#" + id)
+        if (tr.find(":checkbox").is(":checked") === true) {
+            tr.css("color", "green");
+            successNoty("user enabled");
+        } else {
+            tr.css("color", "red");
+            successNoty("user disabled");
+        }
     });
 }

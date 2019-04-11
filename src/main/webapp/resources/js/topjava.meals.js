@@ -30,19 +30,23 @@ $(function () {
                 0,
                 "asc"
             ]
-        ]
+        ],
     });
     makeEditable();
 });
 
- function filter() {
-    let form = $("#filterForm");
+function filter() {
     $.ajax({
         type: "GET",
         url: ajaxUrl + "filter",
-        data: form.serialize()
-    }).done(function () {
+        data: $("#filterForm").serialize()
+    }).done(function (data) {
         datatableApi.clear().rows.add(data).draw();
     });
+}
+
+function resetFilter() {
+    $("#filterForm")[0].reset();
+    updateTable();
 }
 

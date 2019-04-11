@@ -71,8 +71,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void setEnabled(int id) {
-        User user = repository.get(id);
-        user.setEnabled((user.isEnabled()) ? false : true);
-        repository.save(user);
+        User user = get(id);
+        user.setEnabled(!user.isEnabled());
+        update(user);
     }
 }

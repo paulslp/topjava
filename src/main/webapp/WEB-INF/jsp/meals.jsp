@@ -35,12 +35,18 @@
             <span class="fa fa-search"></span>
             <spring:message code="meal.filter"/>
         </button>
+        &nbsp;
+        <button class="btn btn-primary" onclick="resetFilter()">
+            <span class="fa fa-undo"></span>
+            <spring:message code="meal.reset"/>
+        </button>
 
         <hr>
         <button class="btn btn-primary" onclick="add()">
             <span class="fa fa-plus"></span>
             <spring:message code="common.add"/>
         </button>
+
 
         <hr>
         <table class="table table-striped" id="datatable" border="1" cellpadding="8" cellspacing="0">
