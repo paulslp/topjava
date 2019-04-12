@@ -93,10 +93,9 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
 
     @Test
     void setEnabled() {
-        service.setEnabled(ADMIN_ID);
+        service.setEnabled(ADMIN_ID, false);
         assertFalse(service.get(ADMIN_ID).isEnabled());
-        service.setEnabled(USER_ID);
-        service.setEnabled(USER_ID);
+        service.setEnabled(USER_ID, true);
         assertTrue(service.get(USER_ID).isEnabled());
     }
 }

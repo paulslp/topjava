@@ -32,18 +32,6 @@ function updateTable() {
     });
 }
 
-function save() {
-    let form = $("#detailsForm");
-    $.ajax({
-        type: "POST",
-        url: ajaxUrl,
-        data: form.serialize()
-    }).done(function () {
-        $("#editRow").modal("hide");
-        updateTableFilter()
-        successNoty("Saved");
-    });
-}
 
 function updateTableFilter() {
     if (ajaxUrl.indexOf("users") > 0) {

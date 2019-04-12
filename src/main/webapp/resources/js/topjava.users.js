@@ -42,12 +42,12 @@ $(function () {
 });
 
 
-function setEnabled(id) {
+function setEnabled(id, enabled) {
+    let tr = $("#" + id);
     $.ajax({
         type: "POST",
-        url: ajaxUrl + "checked/" + id,
+        url: ajaxUrl + "checked/" + id + "/" + enabled,
     }).done(function () {
-        let tr = $("#" + id)
         if (tr.find(":checkbox").is(":checked") === true) {
             tr.css("color", "green");
             successNoty("user enabled");
@@ -55,5 +55,27 @@ function setEnabled(id) {
             tr.css("color", "red");
             successNoty("user disabled");
         }
+    });
+
+    $(document).ajaxError(function (event, jqXHR, options, jsExc) {
+        tr.find(":checkbox").prop("checked", !tr.find(":checkbox").is(":checked"));
+        (tr.find(":checkbox").is(":checked") === true) ? tr.css("color", "green") : tr.css("color", "red");
+        failNoty(jqXHR);
+    });
+
+    // solve problem with cache in IE: https://stackoverflow.com/a/4303862/548473
+    $.ajaxSetup({cache: false});
+}
+
+function save() {
+    let form = $("#detailsForm");
+    $.ajax({
+        type: "POST",
+        url: ajaxUrl,
+        data: form.serialize()
+    }).done(function () {
+        $("#editRow").modal("hide");
+        updateTable();
+        successNoty("Saved");
     });
 }
