@@ -26,43 +26,43 @@ class AdminRestControllerTest extends AbstractControllerTest {
     @Test
     void testGet() throws Exception {
         mockMvc.perform(get(REST_URL + ADMIN_ID)
-                .with(userHttpBasic(ADMIN)))
-                .andExpect(status().isOk())
-                .andDo(print())
-                // https://jira.spring.io/browse/SPR-14472
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(getUserMatcher(ADMIN));
+                    .with(userHttpBasic(ADMIN)))
+                    .andExpect(status().isOk())
+                    .andDo(print())
+                    // https://jira.spring.io/browse/SPR-14472
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(getUserMatcher(ADMIN));
     }
 
     @Test
     void testGetByEmail() throws Exception {
         mockMvc.perform(get(REST_URL + "by?email=" + ADMIN.getEmail())
-                .with(userHttpBasic(ADMIN)))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(getUserMatcher(ADMIN));
+                    .with(userHttpBasic(ADMIN)))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(getUserMatcher(ADMIN));
     }
 
     @Test
     void testDelete() throws Exception {
         mockMvc.perform(delete(REST_URL + USER_ID)
-                .with(userHttpBasic(ADMIN)))
-                .andDo(print())
-                .andExpect(status().isNoContent());
+                    .with(userHttpBasic(ADMIN)))
+                    .andDo(print())
+                    .andExpect(status().isNoContent());
         assertMatch(userService.getAll(), ADMIN);
     }
 
     @Test
     void testGetUnAuth() throws Exception {
         mockMvc.perform(get(REST_URL))
-                .andExpect(status().isUnauthorized());
+                    .andExpect(status().isUnauthorized());
     }
 
     @Test
     void testGetForbidden() throws Exception {
         mockMvc.perform(get(REST_URL)
-                .with(userHttpBasic(USER)))
-                .andExpect(status().isForbidden());
+                    .with(userHttpBasic(USER)))
+                    .andExpect(status().isForbidden());
     }
 
     @Test
@@ -71,10 +71,10 @@ class AdminRestControllerTest extends AbstractControllerTest {
         updated.setName("UpdatedName");
         updated.setRoles(Collections.singletonList(Role.ROLE_ADMIN));
         mockMvc.perform(put(REST_URL + USER_ID)
-                .contentType(MediaType.APPLICATION_JSON)
-                .with(userHttpBasic(ADMIN))
-                .content(JsonUtil.writeValue(updated)))
-                .andExpect(status().isNoContent());
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .with(userHttpBasic(ADMIN))
+                    .content(JsonUtil.writeValue(updated)))
+                    .andExpect(status().isNoContent());
 
         assertMatch(userService.get(USER_ID), updated);
     }
@@ -83,10 +83,10 @@ class AdminRestControllerTest extends AbstractControllerTest {
     void testCreate() throws Exception {
         User expected = new User(null, "New", "new@gmail.com", "newPass", Role.ROLE_USER, Role.ROLE_ADMIN);
         ResultActions action = mockMvc.perform(post(REST_URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .with(userHttpBasic(ADMIN))
-                .content(JsonUtil.writeValue(expected)))
-                .andExpect(status().isCreated());
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .with(userHttpBasic(ADMIN))
+                    .content(JsonUtil.writeValue(expected)))
+                    .andExpect(status().isCreated());
 
         User returned = readFromJsonResultActions(action, User.class);
         expected.setId(returned.getId());
@@ -98,9 +98,9 @@ class AdminRestControllerTest extends AbstractControllerTest {
     @Test
     void testGetAll() throws Exception {
         TestUtil.print(mockMvc.perform(get(REST_URL)
-                .with(userHttpBasic(ADMIN)))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(getUserMatcher(ADMIN, USER)));
+                    .with(userHttpBasic(ADMIN)))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(getUserMatcher(ADMIN, USER)));
     }
 }

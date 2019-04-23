@@ -42,4 +42,5 @@ public class MealsUtil {
     public static MealTo createWithExcess(Meal meal, boolean Excess) {
         return new MealTo(meal.getId(), meal.getDateTime(), meal.getDescription(), meal.getCalories(), Excess);
     }
+
 }

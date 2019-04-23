@@ -9,7 +9,7 @@ public class MealTo extends BaseTo {
 
     private String description;
 
-    private int calories;
+    private Integer calories;
 
     private boolean excess;
 
@@ -45,11 +45,11 @@ public class MealTo extends BaseTo {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MealTo that = (MealTo) o;
-        return calories == that.calories &&
-                excess == that.excess &&
-                Objects.equals(id, that.id) &&
-                Objects.equals(dateTime, that.dateTime) &&
-                Objects.equals(description, that.description);
+        return calories.intValue() == that.calories.intValue() &&
+                    excess == that.excess &&
+                    Objects.equals(id, that.id) &&
+                    Objects.equals(dateTime, that.dateTime) &&
+                    Objects.equals(description, that.description);
     }
 
     @Override
@@ -60,11 +60,11 @@ public class MealTo extends BaseTo {
     @Override
     public String toString() {
         return "MealTo{" +
-                "id=" + id +
-                ", dateTime=" + dateTime +
-                ", description='" + description + '\'' +
-                ", calories=" + calories +
-                ", excess=" + excess +
-                '}';
+                    "id=" + id +
+                    ", dateTime=" + dateTime +
+                    ", description='" + description + '\'' +
+                    ", calories=" + calories +
+                    ", excess=" + excess +
+                    '}';
     }
 }
