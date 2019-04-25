@@ -13,6 +13,12 @@ function clearFilter() {
     $.get("ajax/profile/meals/", updateTableByData);
 }
 
+$('#startDate').datetimepicker({
+    format: 'DD.MM.YYYY h:mm a',
+    formatTime: 'h:mm a',
+    formatDate: 'DD.MM.YYYY'
+});
+
 $(function () {
     makeEditable({
         ajaxUrl: mealAjaxUrl,
