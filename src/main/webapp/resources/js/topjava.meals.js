@@ -14,9 +14,27 @@ function clearFilter() {
 }
 
 $('#startDate').datetimepicker({
-    format: 'DD.MM.YYYY h:mm a',
-    formatTime: 'h:mm a',
-    formatDate: 'DD.MM.YYYY'
+    timepicker: false,
+    format: 'Y-m-d'
+});
+
+$('#endDate').datetimepicker({
+    timepicker: false,
+    format: 'Y-m-d'
+});
+
+$('#startTime').datetimepicker({
+    datepicker: false,
+    format: 'H:i'
+});
+
+$('#endTime').datetimepicker({
+    datepicker: false,
+    format: 'H:i'
+});
+
+$('#dateTime').datetimepicker({
+    format: 'Y-m-d H:i'
 });
 
 $(function () {
@@ -40,16 +58,10 @@ $(function () {
                     }
                 },
                 {
-                    "data": "description",
-                    "render": function (date, type, row) {
-                        return date;
-                    }
+                    "data": "description"
                 },
                 {
-                    "data": "calories",
-                    "render": function (date, type, row) {
-                        return date;
-                    }
+                    "data": "calories"
                 },
                 {
                     "orderable": false,

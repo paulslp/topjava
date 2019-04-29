@@ -45,7 +45,7 @@ public class MealTo extends BaseTo {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MealTo that = (MealTo) o;
-        return calories.intValue() == that.calories.intValue() &&
+        return calories.equals(that.calories.intValue()) &&
                     excess == that.excess &&
                     Objects.equals(id, that.id) &&
                     Objects.equals(dateTime, that.dateTime) &&
