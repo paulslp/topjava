@@ -99,16 +99,26 @@ class AdminRestControllerTest extends AbstractControllerTest {
     void testCreate() throws Exception {
         User expected = new User(null, "New", "new@gmail.com", "newPass", 2300, Role.ROLE_USER, Role.ROLE_ADMIN);
         ResultActions action = mockMvc.perform(post(REST_URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .with(userHttpBasic(ADMIN))
-                .content(jsonWithPassword(expected, "newPass")))
-                .andExpect(status().isCreated());
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .with(userHttpBasic(ADMIN))
+                    .content(jsonWithPassword(expected, "newPass")))
+                    .andExpect(status().isCreated());
 
         User returned = readFromJsonResultActions(action, User.class);
         expected.setId(returned.getId());
 
         assertMatch(returned, expected);
         assertMatch(userService.getAll(), ADMIN, expected, USER);
+    }
+
+    @Test
+    void testCreateNotValid() throws Exception {
+        User expected = new User(null, "New", null, "newPass", 2300, Role.ROLE_USER, Role.ROLE_ADMIN);
+        ResultActions action = mockMvc.perform(post(REST_URL)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .with(userHttpBasic(ADMIN))
+                    .content(jsonWithPassword(expected, "newPass")))
+                    .andExpect(status().isUnprocessableEntity());
     }
 
     @Test

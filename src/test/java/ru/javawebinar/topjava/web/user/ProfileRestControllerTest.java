@@ -16,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.javawebinar.topjava.TestUtil.*;
 import static ru.javawebinar.topjava.UserTestData.*;
+import static ru.javawebinar.topjava.model.AbstractBaseEntity.START_SEQ;
 import static ru.javawebinar.topjava.web.user.ProfileRestController.REST_URL;
 
 class ProfileRestControllerTest extends AbstractControllerTest {
@@ -23,25 +24,25 @@ class ProfileRestControllerTest extends AbstractControllerTest {
     @Test
     void testGet() throws Exception {
         TestUtil.print(
-                mockMvc.perform(get(REST_URL)
-                        .with(userHttpBasic(USER)))
-                        .andExpect(status().isOk())
-                        .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                        .andExpect(getUserMatcher(USER))
+                    mockMvc.perform(get(REST_URL)
+                                .with(userHttpBasic(USER)))
+                                .andExpect(status().isOk())
+                                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                                .andExpect(getUserMatcher(USER))
         );
     }
 
     @Test
     void testGetUnAuth() throws Exception {
         mockMvc.perform(get(REST_URL))
-                .andExpect(status().isUnauthorized());
+                    .andExpect(status().isUnauthorized());
     }
 
     @Test
     void testDelete() throws Exception {
         mockMvc.perform(delete(REST_URL)
-                .with(userHttpBasic(USER)))
-                .andExpect(status().isNoContent());
+                    .with(userHttpBasic(USER)))
+                    .andExpect(status().isNoContent());
         assertMatch(userService.getAll(), ADMIN);
     }
 
@@ -50,9 +51,9 @@ class ProfileRestControllerTest extends AbstractControllerTest {
         UserTo createdTo = new UserTo(null, "newName", "newemail@ya.ru", "newPassword", 1500);
 
         ResultActions action = mockMvc.perform(post(REST_URL + "/register").contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtil.writeValue(createdTo)))
-                .andDo(print())
-                .andExpect(status().isCreated());
+                    .content(JsonUtil.writeValue(createdTo)))
+                    .andDo(print())
+                    .andExpect(status().isCreated());
         User returned = readFromJsonResultActions(action, User.class);
 
         User created = UserUtil.createNewFromTo(createdTo);
@@ -67,11 +68,34 @@ class ProfileRestControllerTest extends AbstractControllerTest {
         UserTo updatedTo = new UserTo(null, "newName", "newemail@ya.ru", "newPassword", 1500);
 
         mockMvc.perform(put(REST_URL).contentType(MediaType.APPLICATION_JSON)
-                .with(userHttpBasic(USER))
-                .content(JsonUtil.writeValue(updatedTo)))
-                .andDo(print())
-                .andExpect(status().isNoContent());
+                    .with(userHttpBasic(USER))
+                    .content(JsonUtil.writeValue(updatedTo)))
+                    .andDo(print())
+                    .andExpect(status().isNoContent());
 
         assertMatch(userService.getByEmail("newemail@ya.ru"), UserUtil.updateFromTo(new User(USER), updatedTo));
+    }
+
+    @Test
+    void testUpdateNotValid() throws Exception {
+        UserTo expected = new UserTo(null, "New", null, "newPass", 2300);
+        mockMvc.perform(put(REST_URL).contentType(MediaType.APPLICATION_JSON)
+                    .with(userHttpBasic(USER))
+                    .content(JsonUtil.writeValue(expected)))
+                    .andDo(print())
+                    .andExpect(status().isUnprocessableEntity());
+
+    }
+
+
+    @Test
+    void testUpdateEmailExists() throws Exception {
+        UserTo expected = new UserTo(ADMIN_ID, "New", "user@yandex.ru", "newPass", 2300);
+        mockMvc.perform(put(REST_URL).contentType(MediaType.APPLICATION_JSON)
+                    .with(userHttpBasic(USER))
+                    .content(JsonUtil.writeValue(expected)))
+                    .andDo(print())
+                    .andExpect(status().isUnprocessableEntity());
+
     }
 }
