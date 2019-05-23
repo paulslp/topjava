@@ -10,13 +10,13 @@ import ru.javawebinar.topjava.util.UserUtil;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.json.JsonUtil;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.javawebinar.topjava.TestUtil.*;
 import static ru.javawebinar.topjava.UserTestData.*;
-import static ru.javawebinar.topjava.model.AbstractBaseEntity.START_SEQ;
 import static ru.javawebinar.topjava.web.user.ProfileRestController.REST_URL;
 
 class ProfileRestControllerTest extends AbstractControllerTest {
@@ -83,7 +83,10 @@ class ProfileRestControllerTest extends AbstractControllerTest {
                     .with(userHttpBasic(USER))
                     .content(JsonUtil.writeValue(expected)))
                     .andDo(print())
-                    .andExpect(status().isUnprocessableEntity());
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(content().string(containsString("VALIDATION_ERROR")))
+                    .andDo(print());
+
 
     }
 
@@ -95,7 +98,9 @@ class ProfileRestControllerTest extends AbstractControllerTest {
                     .with(userHttpBasic(USER))
                     .content(JsonUtil.writeValue(expected)))
                     .andDo(print())
-                    .andExpect(status().isUnprocessableEntity());
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(content().string(containsString("VALIDATION_ERROR")))
+                    .andDo(print());
 
     }
 }

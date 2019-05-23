@@ -50,8 +50,8 @@ public class MealRestController extends AbstractMealController {
         Meal created = super.create(meal);
 
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path(REST_URL + "/{id}")
-                .buildAndExpand(created.getId()).toUri();
+                    .path(REST_URL + "/{id}")
+                    .buildAndExpand(created.getId()).toUri();
 
         return ResponseEntity.created(uriOfNewResource).body(created);
     }
@@ -59,10 +59,10 @@ public class MealRestController extends AbstractMealController {
     @Override
     @GetMapping(value = "/filter")
     public List<MealTo> getBetween(
-            @RequestParam(value = "startDate", required = false) LocalDate startDate,
-            @RequestParam(value = "startTime", required = false) LocalTime startTime,
-            @RequestParam(value = "endDate", required = false) LocalDate endDate,
-            @RequestParam(value = "endTime", required = false) LocalTime endTime) {
+                @RequestParam(value = "startDate", required = false) LocalDate startDate,
+                @RequestParam(value = "startTime", required = false) LocalTime startTime,
+                @RequestParam(value = "endDate", required = false) LocalDate endDate,
+                @RequestParam(value = "endTime", required = false) LocalTime endTime) {
         return super.getBetween(startDate, startTime, endDate, endTime);
     }
 }

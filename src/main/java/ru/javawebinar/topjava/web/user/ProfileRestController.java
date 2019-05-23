@@ -1,6 +1,5 @@
 package ru.javawebinar.topjava.web.user;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -38,21 +37,14 @@ public class ProfileRestController extends AbstractUserController {
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
                     .path(REST_URL + "/{id}")
                     .buildAndExpand(created.getId()).toUri();
-        try {
-            return ResponseEntity.created(uriOfNewResource).body(created);
-        } catch (DataIntegrityViolationException e) {
-            throw new DataIntegrityViolationException("Пользователь с такой эл. почтой уже существует");
-        }
+        return ResponseEntity.created(uriOfNewResource).body(created);
     }
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void update(@Valid @RequestBody UserTo userTo) {
-        try {
-            super.update(userTo, authUserId());
-        } catch (DataIntegrityViolationException e) {
-            throw new DataIntegrityViolationException("Пользователь с такой эл. почтой уже существует");
-        }
+        super.update(userTo, authUserId());
+
     }
 
     @GetMapping(value = "/text")

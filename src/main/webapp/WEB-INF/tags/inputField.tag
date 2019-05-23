@@ -14,12 +14,8 @@
                                                                      class="form-control is-invalid"/></c:when>
             <c:when test="${inputType == 'number'}"><form:input path="${name}" type="number"
                                                                 class="form-control is-invalid"/></c:when>
-            <c:when test="${inputType == 'email'}"><form:input path="${name}" type="number"
-                                                               class="form-control is-invalid"/>
-            </c:when>
             <c:otherwise><form:input path="${name}" class="form-control is-invalid"/></c:otherwise>
         </c:choose>
-        <form:errors path="${name}" class="control-label"/>
-            <%--<div class="invalid-feedback">${status.errorMessage}</div>--%>
+        <div class="invalid-feedback">${status.errorMessage}</div>
     </div>
 </spring:bind>

@@ -12,6 +12,7 @@ import ru.javawebinar.topjava.web.json.JsonUtil;
 
 import java.time.LocalDateTime;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -105,7 +106,10 @@ class MealRestControllerTest extends AbstractControllerTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(JsonUtil.writeValue(created))
                     .with(userHttpBasic(ADMIN)))
-                    .andExpect(status().isUnprocessableEntity());
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(content().string(containsString("VALIDATION_ERROR")))
+                    .andDo(print());
+        ;
     }
 
     @Test
