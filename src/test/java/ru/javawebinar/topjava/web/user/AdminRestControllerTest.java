@@ -1,8 +1,12 @@
 package ru.javawebinar.topjava.web.user;
 
 import org.junit.jupiter.api.Test;
+
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.TestUtil;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
@@ -20,9 +24,11 @@ import static ru.javawebinar.topjava.TestUtil.readFromJsonResultActions;
 import static ru.javawebinar.topjava.TestUtil.userHttpBasic;
 import static ru.javawebinar.topjava.UserTestData.*;
 
+
 class AdminRestControllerTest extends AbstractControllerTest {
 
     private static final String REST_URL = AdminRestController.REST_URL + '/';
+
 
     @Test
     void testGet() throws Exception {
@@ -133,4 +139,51 @@ class AdminRestControllerTest extends AbstractControllerTest {
                     .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                     .andExpect(getUserMatcher(ADMIN, USER)));
     }
+
+    @Test
+    void testUpdateNotValid() throws Exception {
+        User updated = new User(USER);
+        updated.setCaloriesPerDay(0);
+        mockMvc.perform(put(REST_URL + USER_ID)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .with(userHttpBasic(ADMIN))
+                    .content(JsonUtil.writeValue(updated)))
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(content().string(containsString("VALIDATION_ERROR")))
+                    .andDo(print());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NEVER)
+    void testUpdateEmailExists() throws Exception {
+        User updated = new User(ADMIN);
+        updated.setEmail("user@yandex.ru");
+        mockMvc.perform(put(REST_URL + ADMIN_ID)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .with(userHttpBasic(ADMIN))
+                    .content(JsonUtil.writeAdditionProps(updated, "password", ADMIN.getPassword())))
+                    .andExpect(status().isConflict())
+                    .andExpect(content().string(containsString("DATA_ERROR")))
+                    .andExpect(content().string(containsString(messageSource.getMessage("user.email.exists.error", null
+                                , LocaleContextHolder.getLocale()
+                    ))))
+                    .andDo(print());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NEVER)
+    void testCreateEmailExists() throws Exception {
+        User newUser = new User(null, "user", "user@yandex.ru", "password", 2000, Role.ROLE_USER);
+        mockMvc.perform(post(REST_URL)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .with(userHttpBasic(ADMIN))
+                    .content(JsonUtil.writeAdditionProps(newUser, "password", ADMIN.getPassword())))
+                    .andExpect(status().isConflict())
+                    .andExpect(content().string(containsString("DATA_ERROR")))
+                    .andExpect(content().string(containsString(messageSource.getMessage("user.email.exists.error", null
+                                , LocaleContextHolder.getLocale()
+                    ))));
+
+    }
+
 }

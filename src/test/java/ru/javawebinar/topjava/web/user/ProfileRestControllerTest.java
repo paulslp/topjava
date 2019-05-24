@@ -1,14 +1,19 @@
 package ru.javawebinar.topjava.web.user;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.TestUtil;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.to.UserTo;
 import ru.javawebinar.topjava.util.UserUtil;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.json.JsonUtil;
+
+import java.util.Locale;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -86,21 +91,23 @@ class ProfileRestControllerTest extends AbstractControllerTest {
                     .andExpect(status().isUnprocessableEntity())
                     .andExpect(content().string(containsString("VALIDATION_ERROR")))
                     .andDo(print());
-
-
     }
 
 
     @Test
+    @Transactional(propagation = Propagation.NEVER)
     void testUpdateEmailExists() throws Exception {
-        UserTo expected = new UserTo(ADMIN_ID, "New", "user@yandex.ru", "newPass", 2300);
-        mockMvc.perform(put(REST_URL).contentType(MediaType.APPLICATION_JSON)
-                    .with(userHttpBasic(USER))
-                    .content(JsonUtil.writeValue(expected)))
-                    .andDo(print())
-                    .andExpect(status().isUnprocessableEntity())
-                    .andExpect(content().string(containsString("VALIDATION_ERROR")))
+        UserTo updated = new UserTo(ADMIN.getId(), ADMIN.getName(), ADMIN.getEmail(), ADMIN.getPassword(), ADMIN.getCaloriesPerDay());
+        updated.setEmail("user@yandex.ru");
+        mockMvc.perform(put(REST_URL)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .with(userHttpBasic(ADMIN))
+                    .content(JsonUtil.writeAdditionProps(updated, "password", ADMIN.getPassword())))
+                    .andExpect(status().isConflict())
+                    .andExpect(content().string(containsString("DATA_ERROR")))
+                    .andExpect(content().string(containsString(messageSource.getMessage("user.email.exists.error", null
+                                , LocaleContextHolder.getLocale()
+                    ))))
                     .andDo(print());
-
     }
 }

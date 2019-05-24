@@ -3,6 +3,7 @@ package ru.javawebinar.topjava.web;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
+import org.springframework.context.MessageSource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 import org.springframework.test.web.servlet.MockMvc;
@@ -19,9 +20,9 @@ import javax.annotation.PostConstruct;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 @SpringJUnitWebConfig(locations = {
-        "classpath:spring/spring-app.xml",
-        "classpath:spring/spring-mvc.xml",
-        "classpath:spring/spring-db.xml"
+            "classpath:spring/spring-app.xml",
+            "classpath:spring/spring-mvc.xml",
+            "classpath:spring/spring-db.xml"
 })
 //@WebAppConfiguration
 //@ExtendWith(SpringExtension.class)
@@ -39,6 +40,9 @@ abstract public class AbstractControllerTest {
     protected MockMvc mockMvc;
 
     @Autowired
+    protected MessageSource messageSource;
+
+    @Autowired
     private CacheManager cacheManager;
 
     @Autowired(required = false)
@@ -53,10 +57,10 @@ abstract public class AbstractControllerTest {
     @PostConstruct
     private void postConstruct() {
         mockMvc = MockMvcBuilders
-                .webAppContextSetup(webApplicationContext)
-                .addFilter(CHARACTER_ENCODING_FILTER)
-                .apply(springSecurity())
-                .build();
+                    .webAppContextSetup(webApplicationContext)
+                    .addFilter(CHARACTER_ENCODING_FILTER)
+                    .apply(springSecurity())
+                    .build();
     }
 
     @BeforeEach

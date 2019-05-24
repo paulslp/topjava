@@ -3,8 +3,11 @@ package ru.javawebinar.topjava.web.meal;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
@@ -109,7 +112,18 @@ class MealRestControllerTest extends AbstractControllerTest {
                     .andExpect(status().isUnprocessableEntity())
                     .andExpect(content().string(containsString("VALIDATION_ERROR")))
                     .andDo(print());
-        ;
+    }
+
+    @Test
+    void testUpdateNotValid() throws Exception {
+        Meal updated = new Meal(MEAL1_ID, null, null, 0);
+        mockMvc.perform(put(REST_URL + MEAL1_ID)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(JsonUtil.writeValue(updated))
+                    .with(userHttpBasic(USER)))
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(content().string(containsString("VALIDATION_ERROR")))
+                    .andDo(print());
     }
 
     @Test
@@ -140,4 +154,40 @@ class MealRestControllerTest extends AbstractControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(getToMatcher(getWithExcess(MEALS, USER.getCaloriesPerDay())));
     }
+
+
+    @Test
+    @Transactional(propagation = Propagation.NEVER)
+    void testCreateDateTimeExists() throws Exception {
+        Meal meal = new Meal(null, ADMIN_MEAL1.getDateTime(), "description", 700);
+        mockMvc.perform(post(REST_URL)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(JsonUtil.writeValue(meal))
+                    .with(userHttpBasic(ADMIN)))
+                    .andDo(print())
+                    .andExpect(status().isConflict())
+                    .andExpect(content().string(containsString("DATA_ERROR")))
+                    .andExpect(content().string(containsString(messageSource.getMessage("user.datetime.exists.error", null
+                                , LocaleContextHolder.getLocale()
+                    ))))
+                    .andDo(print());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NEVER)
+    void testUpdateDateTimeExists() throws Exception {
+        Meal meal = new Meal(ADMIN_MEAL_ID, ADMIN_MEAL2.getDateTime(), "description", 700);
+        mockMvc.perform(put(REST_URL + ADMIN_MEAL_ID)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(JsonUtil.writeValue(meal))
+                    .with(userHttpBasic(ADMIN)))
+                    .andExpect(status().isConflict())
+                    .andExpect(content().string(containsString("DATA_ERROR")))
+                    .andExpect(content().string(containsString(messageSource.getMessage("user.datetime.exists.error", null
+                                , LocaleContextHolder.getLocale()
+                    ))))
+                    .andDo(print());
+    }
+
+
 }

@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContext;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -11,7 +12,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -26,6 +26,9 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import javax.servlet.http.HttpServletRequest;
 
+import java.util.Locale;
+
+import static ru.javawebinar.topjava.util.ValidationUtil.getErrorResponse;
 import static ru.javawebinar.topjava.util.exception.ErrorType.*;
 
 @RestControllerAdvice(annotations = RestController.class)
@@ -33,8 +36,18 @@ import static ru.javawebinar.topjava.util.exception.ErrorType.*;
 public class ExceptionInfoHandler {
     private static Logger log = LoggerFactory.getLogger(ExceptionInfoHandler.class);
 
+
     @Autowired
     private MessageSource messageSource;
+
+    public String getError_duplicate_email_message() {
+        return messageSource.getMessage("user.email.exists.error", null, LocaleContextHolder.getLocale());
+    }
+
+    public String getError_duplicate_datetime_message() {
+        return messageSource.getMessage("user.datetime.exists.error", null, LocaleContextHolder.getLocale());
+    }
+
 
     @ResponseStatus(value = HttpStatus.UNPROCESSABLE_ENTITY)
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -52,16 +65,18 @@ public class ExceptionInfoHandler {
     @ResponseStatus(value = HttpStatus.CONFLICT)  // 409
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ErrorInfo conflict(HttpServletRequest req, DataIntegrityViolationException e) {
-        String errorMessage = "";
+        String errorMessageIn, errorMessageOut;
         try {
-            errorMessage = (e.getCause().getCause().getMessage().contains("users_unique_email_idx") == true) ?
-                        messageSource.getMessage("user.email.exists.error", null,
-                                    LocaleContextHolder.getLocale()) :
-                        null;
+            errorMessageIn = e.getCause().getCause().getMessage();
+            errorMessageOut = errorMessageIn.contains("users_unique_email_idx") == true ?
+                        getError_duplicate_email_message() :
+                        errorMessageIn.contains("meals_unique_user_datetime_idx") == true ?
+                                    getError_duplicate_datetime_message() :
+                                    null;
         } catch (Exception ex) {
-            errorMessage = null;
+            errorMessageOut = null;
         }
-        return logAndGetErrorInfo(req, e, true, DATA_ERROR, errorMessage);
+        return logAndGetErrorInfo(req, e, true, DATA_ERROR, errorMessageOut);
     }
 
     @ResponseStatus(value = HttpStatus.UNPROCESSABLE_ENTITY)  // 422
@@ -79,12 +94,7 @@ public class ExceptionInfoHandler {
     @ResponseStatus(value = HttpStatus.UNPROCESSABLE_ENTITY)  // 422
     @ExceptionHandler({BindException.class})
     public ErrorInfo bindError(HttpServletRequest req, Exception e) {
-        BindingResult bindingResult = ((BindException) e).getBindingResult();
-        String errorMessages = bindingResult.getFieldErrors().stream()
-                    .map(error -> error.getField() + " " + error.getDefaultMessage())
-                    .reduce((a, b) -> a + "<br>" + b).get();
-
-        return logAndGetErrorInfo(req, e, false, VALIDATION_ERROR, errorMessages);
+        return logAndGetErrorInfo(req, e, false, VALIDATION_ERROR, getErrorResponse(((BindException) e).getBindingResult()).getBody());
     }
 
     //    https://stackoverflow.com/questions/538870/should-private-helper-methods-be-static-if-they-can-be-static
@@ -97,5 +107,6 @@ public class ExceptionInfoHandler {
         }
         return new ErrorInfo(req.getRequestURL(), errorType, errorMessages == null ? ValidationUtil.getMessage(rootCause) : errorMessages);
     }
+
 
 }

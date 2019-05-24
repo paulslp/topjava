@@ -5,7 +5,8 @@
 
 <nav class="navbar navbar-dark bg-dark py-0">
     <div class="container">
-        <a href="meals" class="navbar-brand"><img src="resources/images/icon-meal.png"> <spring:message code="app.title"/></a>
+        <a href="meals" class="navbar-brand"><img src="resources/images/icon-meal.png"> <spring:message
+                code="app.title"/></a>
         <sec:authorize access="isAuthenticated()">
             <form:form class="form-inline my-2" action="logout" method="post">
                 <sec:authorize access="hasRole('ROLE_ADMIN')">
@@ -26,5 +27,13 @@
                 </button>
             </form:form>
         </sec:authorize>
+        <div class="text-success">Текущий язык:${pageContext.response.locale}</div>
+        <a href="${requestScope['javax.servlet.forward.request_uri']}?lang=${pageContext.response.locale=="ru"?"en":"ru"}">Изменить
+            язык</a>
+    </div>
     </div>
 </nav>
+
+<script type="text/javascript">
+    const localeCode = "${pageContext.response.locale}";
+</script>
