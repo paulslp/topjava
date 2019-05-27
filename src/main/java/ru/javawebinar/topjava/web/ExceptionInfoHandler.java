@@ -68,9 +68,9 @@ public class ExceptionInfoHandler {
         String errorMessageIn, errorMessageOut;
         try {
             errorMessageIn = e.getCause().getCause().getMessage();
-            errorMessageOut = errorMessageIn.contains("users_unique_email_idx") == true ?
+            errorMessageOut = errorMessageIn.contains("users_unique_email_idx") ?
                         getError_duplicate_email_message() :
-                        errorMessageIn.contains("meals_unique_user_datetime_idx") == true ?
+                        errorMessageIn.contains("meals_unique_user_datetime_idx") ?
                                     getError_duplicate_datetime_message() :
                                     null;
         } catch (Exception ex) {

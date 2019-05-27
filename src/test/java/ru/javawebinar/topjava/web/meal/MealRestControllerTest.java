@@ -167,9 +167,6 @@ class MealRestControllerTest extends AbstractControllerTest {
                     .andDo(print())
                     .andExpect(status().isConflict())
                     .andExpect(content().string(containsString("DATA_ERROR")))
-                    .andExpect(content().string(containsString(messageSource.getMessage("user.datetime.exists.error", null
-                                , LocaleContextHolder.getLocale()
-                    ))))
                     .andDo(print());
     }
 
@@ -183,9 +180,6 @@ class MealRestControllerTest extends AbstractControllerTest {
                     .with(userHttpBasic(ADMIN)))
                     .andExpect(status().isConflict())
                     .andExpect(content().string(containsString("DATA_ERROR")))
-                    .andExpect(content().string(containsString(messageSource.getMessage("user.datetime.exists.error", null
-                                , LocaleContextHolder.getLocale()
-                    ))))
                     .andDo(print());
     }
 

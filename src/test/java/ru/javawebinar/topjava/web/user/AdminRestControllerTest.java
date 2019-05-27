@@ -164,9 +164,6 @@ class AdminRestControllerTest extends AbstractControllerTest {
                     .content(JsonUtil.writeAdditionProps(updated, "password", ADMIN.getPassword())))
                     .andExpect(status().isConflict())
                     .andExpect(content().string(containsString("DATA_ERROR")))
-                    .andExpect(content().string(containsString(messageSource.getMessage("user.email.exists.error", null
-                                , LocaleContextHolder.getLocale()
-                    ))))
                     .andDo(print());
     }
 
@@ -180,9 +177,7 @@ class AdminRestControllerTest extends AbstractControllerTest {
                     .content(JsonUtil.writeAdditionProps(newUser, "password", ADMIN.getPassword())))
                     .andExpect(status().isConflict())
                     .andExpect(content().string(containsString("DATA_ERROR")))
-                    .andExpect(content().string(containsString(messageSource.getMessage("user.email.exists.error", null
-                                , LocaleContextHolder.getLocale()
-                    ))));
+                    .andDo(print());
 
     }
 

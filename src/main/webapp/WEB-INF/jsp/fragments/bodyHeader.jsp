@@ -27,9 +27,9 @@
                 </button>
             </form:form>
         </sec:authorize>
-        <div class="text-success">Текущий язык:${pageContext.response.locale}</div>
-        <a href="${requestScope['javax.servlet.forward.request_uri']}?lang=${pageContext.response.locale=="ru"?"en":"ru"}">Изменить
-            язык</a>
+        <div class="text-success"><spring:message code="app.current.local"/>:${pageContext.response.locale}</div>
+        <a href="${requestScope['javax.servlet.forward.request_uri']}?lang=${pageContext.response.locale=="ru"?"en":"ru"}"><spring:message
+                code="app.change.local"/></a>
     </div>
     </div>
 </nav>
